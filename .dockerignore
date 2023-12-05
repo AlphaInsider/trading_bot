@@ -1,4 +1,5 @@
 *
+!database/*
 !lib/*
 !public/*
 !express.js

@@ -1,5 +1,13 @@
 version: '3'
 services:
+  db:
+    image: postgres:10.14-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+    ports:
+      - 127.0.0.1:5432:5432
+
   server:
     image: "alphainsider/trading_bot:test"
     build:
@@ -7,20 +15,11 @@ services:
       args:
         - ENVIRONMENT=development
     environment:
-      # AlphaInsider
-      ALPHAINSIDER_API_KEY: ${ALPHAINSIDER_API_KEY}
-      STRATEGY_ID: ${STRATEGY_ID}
-      MARGIN_MULTIPLIER: ${MARGIN_MULTIPLIER}
-      BUFFER_AMOUNT: ${BUFFER_AMOUNT}
-      # Alpaca
-      ALPACA_KEY: ${ALPACA_KEY}
-      ALPACA_SECRET: ${ALPACA_SECRET}
-      # TastyTrade
-      TASTYTRADE_EMAIL: ${TASTYTRADE_EMAIL}
-      TASTYTRADE_PASSWORD: ${TASTYTRADE_PASSWORD}
-      TASTYTRADE_ACCOUNT_ID: ${TASTYTRADE_ACCOUNT_ID}
+      DATABASE_URL: ${DATABASE_URL}
+      USER_PASSWORD: ${USER_PASSWORD}
     volumes:
-      - ./worker:/app/server/worker
+      - ./database:/app/server/database
+      - ./lib:/app/server/lib
       - ./public:/app/server/public
       - ./express.js:/app/server/express.js
       - /app/server/node_modules

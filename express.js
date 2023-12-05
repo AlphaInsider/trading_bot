@@ -1,77 +1,404 @@
-const path = require('path');
 const express = require('express');
-const api = express.Router();
+const path = require('path');
+const favicon = require('serve-favicon');
+const cors = require('cors');
+const rateLimit = require('express-rate-limit');
+let http = require('http');
+const router = express.Router();
 
-let worker = require('./worker');
+const lib = require('./lib');
+const knex = require('knex')({
+  client: 'pg',
+  connection: process.env['DATABASE_URL'],
+  pool: {max: 10},
+  debug: false,
+  migrations: {
+    directory: './database/migrations'
+  }
+});
+let server = new lib.Server({
+  db: knex
+});
 
+//==== setup ====
 const app = express();
+app.disable('x-powered-by');
+app.use((req, res, next) => {
+  res.setHeader('X-Frame-Options', 'DENY');
+  next();
+});
+app.use(cors({
+  origin: [
+    'http://localhost',
+    'http://localhost:8080',
+    'http://localhost:8100'
+  ]
+}));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
+app.use(express.static(path.join(__dirname, 'public')));
 
-//Router Defaults
+
+//==== MIDDLEWARE ====
+//CHECK: auth (auth_token)
+let auth = (options = {}) => {
+  return (req, res, next) => {
+    return Promise.resolve()
+    // VALIDATE
+    .then(async () => {
+      //get token
+      let authToken = req.headers['authorization'].replace('Bearer ', '');
+      //validate
+      let token = await server.verifyAuthToken({
+        auth_token: authToken
+      });
+      //return
+      res.locals.auth = token;
+      return next();
+    })
+    // ERROR
+    .catch((error) => {
+      res.status(401).json({
+        success: false,
+        response: 'Authentication failed.'
+      });
+    });
+  };
+};
+
+
+//==== API ====
+//CHECK: login <password>
+router.post('/login',
+  rateLimit({
+    windowMs: 1000 * 60 * 60, //1 hour
+    max: 20,
+    handler: (req, res) => {
+      res.status(429).json({
+        success: false,
+        response: 'Rate limit reached.'
+      });
+    }
+  }),
+  (req, res, next) => {
+    server.login({
+      ...req.body
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+//CHECK: getVersion
+router.get('/getVersion',
+  (req, res, next) => {
+    server.getVersion({
+      ...req.query
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+//CHECK: *getBotInfo
+router.get('/getBotInfo',
+  auth(),
+  (req, res, next) => {
+    server.getBotInfo({
+      ...req.query
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+//CHECK: *getAllocation
+router.get('/getAllocation',
+  auth(),
+  (req, res, next) => {
+    server.getAllocation({
+      ...req.query
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+//CHECK: *updateAllocation <strategy_id> --multiplier--
+router.post('/updateAllocation',
+  auth(),
+  (req, res, next) => {
+    server.updateAllocation({
+      ...req.body
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+//CHECK: *updateSettings --buffer_amount-- --close_on_stop--
+router.post('/updateSettings',
+  auth(),
+  (req, res, next) => {
+    server.updateSettings({
+      ...req.body
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+//CHECK: *updateAlphaInsider <alphainsider_key>
+router.post('/updateAlphaInsider',
+  auth(),
+  (req, res, next) => {
+    server.updateAlphaInsider({
+      ...req.body
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+//CHECK: *updateBrokerAlpaca <alpaca_key> <alpaca_secret>
+router.post('/updateBrokerAlpaca',
+  auth(),
+  (req, res, next) => {
+    server.updateBrokerAlpaca({
+      ...req.body
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+//CHECK: *updateBrokerTastytrade <tastytrade_email> <tastytrade_password> <account_id>
+router.post('/updateBrokerTastytrade',
+  auth(),
+  (req, res, next) => {
+    server.updateBrokerTastytrade({
+      ...req.body
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+//CHECK: *startBot --rebalance--
+router.post('/startBot',
+  auth(),
+  (req, res, next) => {
+    server.startBot({
+      ...req.body
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+//CHECK: *stopBot
+router.post('/stopBot',
+  auth(),
+  (req, res, next) => {
+    server.stopBot({
+      ...req.body
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+//CHECK: *rebalance
+router.post('/rebalance',
+  auth(),
+  (req, res, next) => {
+    server.rebalance({
+      ...req.body
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+//CHECK: *closeAllPositions
+router.post('/closeAllPositions',
+  auth(),
+  (req, res, next) => {
+    server.closeAllPositions({
+      ...req.body
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+//CHECK: *getActivity --activity_id-- --[type]-- --limit-- --offset_id--
+router.get('/getActivity',
+  auth(),
+  (req, res, next) => {
+    server.getActivity({
+      ...req.query
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+
+//==== ROUTES ====
+app.use('/api', router);
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
-app.listen(process.env['PORT'] || 3000, () => {
-  console.log(`Example app listening on port ${process.env['PORT'] || 3000}`)
+app.use((err, req, res, next) => {
+  res.status(err.status || 500);
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-//Router config
-app.use('/api', api);
-app.use(express.static(path.join(__dirname, 'public')));
-
-//RUN trading bot
-let alphaInsider = new worker.AlphaInsider({
-  api_key: process.env['ALPHAINSIDER_API_KEY'],
-  strategy_id: process.env['STRATEGY_ID']
-});
-let alpaca = new worker.Alpaca({
-  key: process.env['ALPACA_KEY'],
-  secret: process.env['ALPACA_SECRET']
-});
-let bot = new worker.Bot({
-  AlphaInsider: alphaInsider,
-  Broker: alpaca,
-  multiplier: process.env['MARGIN_MULTIPLIER'] || 1,
-  buffer_amount: process.env['BUFFER_AMOUNT'] || 0
-});
-
-//connect to websocket
-alphaInsider.wsConnect();
-
-//on trade, rebalance
-alphaInsider.on('message', async (message) => {
-  console.log('REBALANCE');
-  await bot.rebalance().catch((error) => {
-    //print error message
-    worker.reports.errorLog({
-      type: 'rebalance_error',
-      info: {},
-      message: error
-    });
-  });
-});
-
-//on error, log error
-alphaInsider.on('error', (error) => {
-  //print error message
-  worker.reports.errorLog({
-    type: 'alphainsider_error',
-    info: {},
-    message: error
-  });
-});
-
-//on close, close all positions
-alphaInsider.on('close', async () => {
-  console.log('CLOSE ALL POSITIONS');
-  await alpaca.closeAllPositions().catch((error) => {
-    //print error message
-    worker.reports.errorLog({
-      type: 'close_all_positions_error',
-      info: {},
-      message: error
-    });
-  });
-  await new Promise(resolve => setTimeout(resolve, 60*1000));
-  await alphaInsider.wsConnect();
-});
+//==== START ====
+//start http server
+let port = parseInt(process.env['PORT'], 10) || 3000;
+app.set('port', port);
+let httpServer = http.createServer(app);
+httpServer.listen(port);

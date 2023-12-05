@@ -4,7 +4,10 @@ FROM node:lts
 ARG ENVIRONMENT=production
 ENV NODE_ENV=$ENVIRONMENT
 
+# Set working directory
 WORKDIR /app/server
+
+# Copy files specified in .dockerignore
 COPY ./ ./
 
 # Build
