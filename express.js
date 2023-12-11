@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const express = require('express');
 const path = require('path');
 const favicon = require('serve-favicon');
@@ -5,20 +6,43 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 let http = require('http');
 const router = express.Router();
+const WebSocket = require('ws');
+const crypto = require('crypto');
+const args = require('yargs').argv;
 
 const lib = require('./lib');
-const knex = require('knex')({
-  client: 'pg',
-  connection: process.env['DATABASE_URL'],
-  pool: {max: 10},
-  debug: false,
-  migrations: {
-    directory: './database/migrations'
-  }
-});
-let server = new lib.Server({
-  db: knex
-});
+
+//init server
+let server = undefined;
+if(args.electron) {
+  server = new lib.Server({
+    db: require('knex')({
+      client: 'sqlite3',
+      connection: {
+        filename: './database.sqlite3'
+      },
+      pool: {max: 10},
+      debug: false,
+      migrations: {
+        directory: './database/migrations'
+      }
+    })
+  });
+}
+else {
+  server = new lib.Server({
+    db: require('knex')({
+      client: 'pg',
+      connection: process.env['DATABASE_URL'],
+      pool: {max: 10},
+      debug: false,
+      migrations: {
+        directory: './database/migrations'
+      }
+    }),
+    password: process.env['USER_PASSWORD'] || crypto.randomBytes(64).toString('base64')
+  });
+}
 
 //==== setup ====
 const app = express();
@@ -69,7 +93,7 @@ let auth = (options = {}) => {
 
 
 //==== API ====
-//CHECK: login <password>
+//CHECK: login --password--
 router.post('/login',
   rateLimit({
     windowMs: 1000 * 60 * 60, //1 hour
@@ -363,6 +387,50 @@ router.post('/closeAllPositions',
   }
 );
 
+//CHECK: *searchStrategies --search-- --{positions}-- --{industries}-- --{type}-- --[risk]-- --trade_count_min-- --trade_count_max-- --price_min-- --price_max-- --timeframe-- --sort-- --limit-- --offset_id--
+router.post('/searchStrategies',
+  auth(),
+  (req, res, next) => {
+    server.searchStrategies({
+      ...req.body
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+//CHECK: *getUserStrategies --timeframe--
+router.get('/getUserStrategies',
+  auth(),
+  (req, res, next) => {
+    server.getUserStrategies({
+      ...req.query
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
 //CHECK: *getActivity --activity_id-- --[type]-- --limit-- --offset_id--
 router.get('/getActivity',
   auth(),
@@ -398,7 +466,129 @@ app.use((err, req, res, next) => {
 
 //==== START ====
 //start http server
-let port = parseInt(process.env['PORT'], 10) || 3000;
-app.set('port', port);
-let httpServer = http.createServer(app);
-httpServer.listen(port);
+let httpServer = undefined;
+if(args.electron) {
+  let port = 3001;
+  app.set('port', port);
+  httpServer = http.createServer(app);
+  httpServer.listen(port, 'localhost');
+}
+else {
+  let port = parseInt(process.env['PORT'], 10) || 3000;
+  app.set('port', port);
+  httpServer = http.createServer(app);
+  httpServer.listen(port);
+}
+
+//==== WEBSOCKET ====
+//init websocket
+const wss = new WebSocket.Server({
+  path: '/ws',
+  server: httpServer
+});
+//websocket on connection, accept subscriptions
+wss.on('connection', (client) => {
+  //initialise client
+  client.channels = [];
+  client.token = '';
+  //handle message
+  client.on('message', async (message) => {
+    //verify request
+    try {
+      let {event, payload} = JSON.parse(message);
+      if(event !== 'subscribe') throw new Error('Invalid event.');
+      //verify token
+      try {
+        //verify token
+        await server.verifyAuthToken({
+          auth_token: payload.token
+        });
+        //split channels between valid and invalid channels
+        let validChannels = _.intersection(payload.channels, ['wsActivity']);
+        let invalidChannels = _.filter(payload.channels, (item) => !_.includes(validChannels, item));
+        //set channels and token
+        client.channels = validChannels;
+        client.token = payload.token;
+        //valid channels
+        client.send(JSON.stringify({
+          event: 'subscribe',
+          response: validChannels
+        }));
+        //invalid channels
+        invalidChannels.forEach((item) => {
+          client.send(JSON.stringify({
+            event: 'error',
+            channel: item,
+            response: 'Failed to subscribe to channel.'
+          }));
+        });
+      }
+      //error, authentication failed
+      catch(error) {
+        client.send(JSON.stringify({
+          event: 'error',
+          response: 'Authentication failed.'
+        }));
+        payload.channels.forEach((item) => {
+          client.send(JSON.stringify({
+            event: 'error',
+            channel: item,
+            response: 'Failed to subscribe to channel.'
+          }));
+        });
+      }
+    }
+    //error, request failed
+    catch(error) {
+      client.send(JSON.stringify({
+        event: 'error',
+        response: 'Request failed.'
+      }));
+    }
+  });
+});
+//server on message, send message to subscribed users
+let wsSend = (channel, message) => {
+  //send message to subscribed users
+  wss.clients.forEach(async (client) => {
+    //send message
+    try {
+      if(!client.channels.includes(channel)) throw new Error('User not subscribed.');
+      client.send(JSON.stringify({
+        event: 'message',
+        channel: channel,
+        response: message
+      }));
+    }
+    //error, ignore
+    catch(error) {}
+  });
+};
+server.on('activity', (data) => wsSend('wsActivity', data));
+//re-verify tokens (5 seconds)
+setInterval(() => {
+  wss.clients.forEach(async (client) => {
+    //verify token
+    try {
+      await server.verifyAuthToken({
+        auth_token: client.token
+      });
+    }
+    //error, close channels
+    catch(error) {
+      client.send(JSON.stringify({
+        event: 'error',
+        response: 'Authentication failed.'
+      }));
+      client.channels.forEach((channel) => {
+        client.send(JSON.stringify({
+          event: 'error',
+          channel: channel,
+          response: 'Channel closed.'
+        }));
+      });
+      client.channels = [];
+      client.token = '';
+    }
+  });
+}, 5000);
