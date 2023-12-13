@@ -387,12 +387,12 @@ router.post('/closeAllPositions',
   }
 );
 
-//CHECK: *searchStrategies --search-- --{positions}-- --{industries}-- --{type}-- --[risk]-- --trade_count_min-- --trade_count_max-- --price_min-- --price_max-- --timeframe-- --sort-- --limit-- --offset_id--
-router.post('/searchStrategies',
+//CHECK: *getStrategies <[strategy_id]> --timeframe--
+router.get('/getStrategies',
   auth(),
   (req, res, next) => {
-    server.searchStrategies({
-      ...req.body
+    server.getStrategies({
+      ...req.query
     })
     .then((data) => {
       res.json({
@@ -409,12 +409,12 @@ router.post('/searchStrategies',
   }
 );
 
-//CHECK: *getUserStrategies --timeframe--
-router.get('/getUserStrategies',
+//CHECK: *searchStrategies --search-- --{positions}-- --{industries}-- --{type}-- --[risk]-- --trade_count_min-- --trade_count_max-- --price_min-- --price_max-- --timeframe-- --sort-- --limit-- --offset_id--
+router.post('/searchStrategies',
   auth(),
   (req, res, next) => {
-    server.getUserStrategies({
-      ...req.query
+    server.searchStrategies({
+      ...req.body
     })
     .then((data) => {
       res.json({
