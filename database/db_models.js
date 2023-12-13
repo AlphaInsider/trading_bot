@@ -19,6 +19,7 @@ Promise.resolve()
     table.string('alphainsider_key', 10000);
     table.jsonb('broker').notNullable().defaultTo('{}'); //{type, account_id, live, alpaca_key, alpaca_secret, tastytrade_email, tastytrade_password}
     table.timestamp('updated_at').notNullable();
+    table.timestamp('created_at').notNullable();
   });
 })
 
