@@ -31,10 +31,22 @@ exports.up = async (knex) => {
   });
   
   //add bot
-  await knex('bot')
+  let bot = await knex('bot')
   .insert({
     bot_id: nanoid(),
     updated_at: moment().toISOString(),
+    created_at: moment().toISOString()
+  })
+  .returning(['*'])
+  .then((data) => j.attempt(data, j.array().min(1).required())[0]);
+  
+  //add first activity
+  await knex('activity')
+  .insert({
+    activity_id: nanoid(),
+    bot_id: bot.bot_id,
+    type: 'info',
+    message: 'Bot created.',
     created_at: moment().toISOString()
   })
   .returning(['*'])
