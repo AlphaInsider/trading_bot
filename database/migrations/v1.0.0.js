@@ -7,11 +7,12 @@ exports.up = async (knex) => {
   await knex.schema.createTable('bot', (table) => {
     table.string('bot_id', 50).notNullable().primary().unique();
     table.bigInteger('buffer_amount').notNullable().defaultTo('0');
+    table.boolean('rebalance_on_start').notNullable().defaultTo(true);
     table.boolean('close_on_stop').notNullable().defaultTo(true);
     table.string('alphainsider_key', 10000);
     table.jsonb('broker').notNullable().defaultTo('{}'); //{type, account_id, live, alpaca_key, alpaca_secret, tastytrade_email, tastytrade_password}
     table.timestamp('updated_at').notNullable();
-    table.timestamp('created_at').notNullable().index();
+    table.timestamp('created_at').notNullable();
   });
   await knex.schema.createTable('allocation', (table) => {
     table.string('allocation_id', 50).notNullable().primary().unique();
