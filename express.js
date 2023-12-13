@@ -6,7 +6,6 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 let http = require('http');
 const router = express.Router();
-const WebSocket = require('ws');
 const crypto = require('crypto');
 const args = require('yargs').argv;
 
@@ -211,7 +210,7 @@ router.post('/updateAllocation',
   }
 );
 
-//CHECK: *updateSettings --buffer_amount-- --close_on_stop--
+//CHECK: *updateSettings --buffer_amount-- --rebalance_on_start-- --close_on_stop--
 router.post('/updateSettings',
   auth(),
   (req, res, next) => {
@@ -299,7 +298,7 @@ router.post('/updateBrokerTastytrade',
   }
 );
 
-//CHECK: *startBot --rebalance--
+//CHECK: *startBot
 router.post('/startBot',
   auth(),
   (req, res, next) => {
@@ -481,114 +480,4 @@ else {
 }
 
 //==== WEBSOCKET ====
-//init websocket
-const wss = new WebSocket.Server({
-  path: '/ws',
-  server: httpServer
-});
-//websocket on connection, accept subscriptions
-wss.on('connection', (client) => {
-  //initialise client
-  client.channels = [];
-  client.token = '';
-  //handle message
-  client.on('message', async (message) => {
-    //verify request
-    try {
-      let {event, payload} = JSON.parse(message);
-      if(event !== 'subscribe') throw new Error('Invalid event.');
-      //verify token
-      try {
-        //verify token
-        await server.verifyAuthToken({
-          auth_token: payload.token
-        });
-        //split channels between valid and invalid channels
-        let validChannels = _.intersection(payload.channels, ['wsActivity']);
-        let invalidChannels = _.filter(payload.channels, (item) => !_.includes(validChannels, item));
-        //set channels and token
-        client.channels = validChannels;
-        client.token = payload.token;
-        //valid channels
-        client.send(JSON.stringify({
-          event: 'subscribe',
-          response: validChannels
-        }));
-        //invalid channels
-        invalidChannels.forEach((item) => {
-          client.send(JSON.stringify({
-            event: 'error',
-            channel: item,
-            response: 'Failed to subscribe to channel.'
-          }));
-        });
-      }
-      //error, authentication failed
-      catch(error) {
-        client.send(JSON.stringify({
-          event: 'error',
-          response: 'Authentication failed.'
-        }));
-        payload.channels.forEach((item) => {
-          client.send(JSON.stringify({
-            event: 'error',
-            channel: item,
-            response: 'Failed to subscribe to channel.'
-          }));
-        });
-      }
-    }
-    //error, request failed
-    catch(error) {
-      client.send(JSON.stringify({
-        event: 'error',
-        response: 'Request failed.'
-      }));
-    }
-  });
-});
-//server on message, send message to subscribed users
-let wsSend = (channel, message) => {
-  //send message to subscribed users
-  wss.clients.forEach(async (client) => {
-    //send message
-    try {
-      if(!client.channels.includes(channel)) throw new Error('User not subscribed.');
-      client.send(JSON.stringify({
-        event: 'message',
-        channel: channel,
-        response: message
-      }));
-    }
-    //error, ignore
-    catch(error) {}
-  });
-};
-server.on('activity', (data) => wsSend('wsActivity', data));
-//re-verify tokens (5 seconds)
-setInterval(() => {
-  wss.clients.forEach(async (client) => {
-    //verify token
-    try {
-      await server.verifyAuthToken({
-        auth_token: client.token
-      });
-    }
-    //error, close channels
-    catch(error) {
-      client.send(JSON.stringify({
-        event: 'error',
-        response: 'Authentication failed.'
-      }));
-      client.channels.forEach((channel) => {
-        client.send(JSON.stringify({
-          event: 'error',
-          channel: channel,
-          response: 'Channel closed.'
-        }));
-      });
-      client.channels = [];
-      client.token = '';
-    }
-  });
-}, 5000);
+server.wsConnect({http: httpServer});
