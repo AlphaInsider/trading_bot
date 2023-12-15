@@ -188,7 +188,7 @@ router.get('/getAllocation',
   }
 );
 
-//CHECK: *updateAllocation <strategy_id> --multiplier--
+//CHECK: *updateAllocation <strategy_id>
 router.post('/updateAllocation',
   auth(),
   (req, res, next) => {
@@ -210,7 +210,7 @@ router.post('/updateAllocation',
   }
 );
 
-//CHECK: *updateSettings --buffer_amount-- --rebalance_on_start-- --close_on_stop--
+//CHECK: *updateSettings --rebalance_on_start-- --close_on_stop--
 router.post('/updateSettings',
   auth(),
   (req, res, next) => {

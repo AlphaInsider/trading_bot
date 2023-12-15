@@ -13,7 +13,6 @@ Promise.resolve()
 .then(() => {
   return knex.schema.createTable('bot', (table) => {
     table.string('bot_id', 50).notNullable().primary().unique();
-    table.bigInteger('buffer_amount').notNullable().defaultTo('0');
     table.boolean('rebalance_on_start').notNullable().defaultTo(true);
     table.boolean('close_on_stop').notNullable().defaultTo(true);
     table.string('alphainsider_key', 10000);
@@ -29,7 +28,6 @@ Promise.resolve()
     table.string('allocation_id', 50).notNullable().primary().unique();
     table.string('bot_id', 50).notNullable().references('bot.bot_id').onDelete('CASCADE').onUpdate('CASCADE');
     table.string('strategy_id', 50).notNullable();
-    table.decimal('multiplier', 30, 15).notNullable().defaultTo('1');
     table.timestamp('created_at').notNullable().index();
   });
 })
