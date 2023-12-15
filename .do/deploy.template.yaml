@@ -26,17 +26,5 @@ spec:
       engine: PG
       production: false
   envs:
-    - key: ALPACA_KEY
-      type: GENERAL
-    - key: ALPACA_SECRET
-      type: GENERAL
-    - key: ALPHAINSIDER_API_KEY
-      type: GENERAL
-    - key: STRATEGY_ID
-      type: GENERAL
-    - key: MARGIN_MULTIPLIER
-      value: "1"
-      type: GENERAL
-    - key: BUFFER_AMOUNT
-      value: "0"
+    - key: PASSWORD
       type: GENERAL

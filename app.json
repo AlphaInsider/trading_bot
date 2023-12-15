@@ -10,31 +10,9 @@
     }
   },
   "env": {
-    "ALPACA_KEY": {
-      "description": "",
-      "required": false
-    },
-    "ALPACA_SECRET": {
-      "description": "",
-      "required": false
-    },
-    "ALPHAINSIDER_API_KEY": {
-      "description": "",
+    "PASSWORD": {
+      "description": "Password used to log into the bot.",
       "required": true
-    },
-    "STRATEGY_ID": {
-      "description": "",
-      "required": true
-    },
-    "MARGIN_MULTIPLIER": {
-      "description": "",
-      "value": "1",
-      "required": false
-    },
-    "BUFFER_AMOUNT": {
-      "description": "",
-      "value": "0",
-      "required": false
     }
   },
   "scripts": {
