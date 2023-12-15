@@ -15,9 +15,6 @@
       "required": true
     }
   },
-  "scripts": {
-    "postdeploy": "npm run setup"
-  },
   "addons": [
     {
       "plan": "heroku-postgresql:mini"
