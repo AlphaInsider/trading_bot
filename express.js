@@ -32,7 +32,10 @@ else {
   server = new lib.Server({
     db: require('knex')({
       client: 'pg',
-      connection: process.env['DATABASE_URL'],
+      connection: {
+        connectionString: process.env['DATABASE_URL'],
+        ssl: {rejectUnauthorized: false}
+      },
       pool: {max: 10},
       debug: false,
       migrations: {
