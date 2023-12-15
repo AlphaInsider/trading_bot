@@ -27,4 +27,4 @@ spec:
       production: false
   envs:
     - key: USER_PASSWORD
-      type: SECRET
+      type: GENERAL
