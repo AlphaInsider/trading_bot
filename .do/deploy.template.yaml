@@ -27,4 +27,4 @@ spec:
       production: false
   envs:
     - key: PASSWORD
-      type: GENERAL
+      type: SECRET
