@@ -10,13 +10,10 @@
     }
   },
   "env": {
-    "PASSWORD": {
+    "USER_PASSWORD": {
       "description": "Password used to log into the bot.",
       "required": true
     }
-  },
-  "scripts": {
-    "postdeploy": "npm run setup"
   },
   "addons": [
     {

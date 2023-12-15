@@ -3,7 +3,7 @@ spec:
   services:
     - name: web
       instance_count: 1
-      instance_size_slug: basic-xxs
+      instance_size_slug: basic-xs
       environment_slug: node-js
       git:
         repo_clone_url: https://github.com/AlphaInsider/trading_bot.git
@@ -26,5 +26,5 @@ spec:
       engine: PG
       production: false
   envs:
-    - key: PASSWORD
-      type: GENERAL
+    - key: USER_PASSWORD
+      type: SECRET
