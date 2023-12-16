@@ -17,9 +17,6 @@ spec:
         - key: DATABASE_URL
           value: ${database.DATABASE_URL}
           scope: RUN_TIME
-        - key: NODE_ENV
-          value: production
-          scope: RUN_TIME
   databases:
     - cluster_name: db-cluster
       name: database
