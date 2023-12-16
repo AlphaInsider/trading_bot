@@ -34,7 +34,7 @@ else {
       client: 'pg',
       connection: {
         connectionString: process.env['DATABASE_URL'],
-        ssl: {rejectUnauthorized: false}
+        ...((process.env['NODE_ENV'] !== 'development') ? {ssl: {rejectUnauthorized: false}} : {})
       },
       pool: {max: 10},
       debug: false,
