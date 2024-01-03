@@ -6,6 +6,7 @@ exports.up = async (knex) => {
   //create tables
   await knex.schema.createTable('bot', (table) => {
     table.string('bot_id', 50).notNullable().primary().unique();
+    table.string('status', 50).notNullable().defaultTo('off'); //on, off, rebalancing, closing, scheduled_rebalance, scheduled_close
     table.boolean('rebalance_on_start').notNullable().defaultTo(true);
     table.boolean('close_on_stop').notNullable().defaultTo(true);
     table.string('alphainsider_key', 10000);
