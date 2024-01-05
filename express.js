@@ -33,7 +33,7 @@ else {
     db: require('knex')({
       client: 'pg',
       connection: {
-        connectionString: process.env['DATABASE_URL'],
+        connectionString: _.split(process.env['DATABASE_URL'], '?')[0],
         ...((process.env['NODE_ENV'] === 'production') ? {ssl: {rejectUnauthorized: false}} : {})
       },
       pool: {max: 10},
