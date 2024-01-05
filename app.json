@@ -2,7 +2,7 @@
   "name": "AlphaInsider Trading Bot",
   "description": "Follow strategies on AlphaInsider and make trades on your brokerage.",
   "website": "https://alphainsider.com",
-  "image": "alphainsider/trading_bot:latest",
+  "stack": "container",
   "formation": {
     "web": {
       "quantity": 1,
