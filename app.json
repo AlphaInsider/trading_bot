@@ -4,7 +4,7 @@
   "website": "https://alphainsider.com",
   "stack": "container",
   "formation": {
-    "web": {
+    "server": {
       "quantity": 1,
       "size": "Basic"
     }
