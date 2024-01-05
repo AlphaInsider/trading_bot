@@ -17,10 +17,10 @@ spec:
           value: ${database.DATABASE_URL}
           scope: RUN_TIME
   databases:
-    - cluster_name: database
+    - cluster_name: db-cluster
       name: database
       engine: PG
-      production: true
+      production: false
   envs:
     - key: USER_PASSWORD
       type: GENERAL
