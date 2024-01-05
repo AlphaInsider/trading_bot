@@ -16,14 +16,11 @@ spec:
         - key: DATABASE_URL
           value: ${database.DATABASE_URL}
           scope: RUN_TIME
-        - key: CA_CERT
-          value: ${database.CA_CERT}
-          scope: RUN_TIME
   databases:
-    - cluster_name: db-cluster
+    - cluster_name: database
       name: database
       engine: PG
-      production: false
+      production: true
   envs:
     - key: USER_PASSWORD
       type: GENERAL

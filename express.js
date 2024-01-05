@@ -29,6 +29,7 @@ if(args.electron) {
   });
 }
 else {
+  console.log('Connecting to DB...');
   server = new lib.Server({
     db: require('knex')({
       client: 'pg',
