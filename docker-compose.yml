@@ -13,7 +13,7 @@ services:
     build:
       context: .
       args:
-        - ENVIRONMENT=development
+        - NODE_ENV=development
     environment:
       DATABASE_URL: ${DATABASE_URL}
       USER_PASSWORD: ${USER_PASSWORD}
