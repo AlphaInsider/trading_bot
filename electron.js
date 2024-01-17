@@ -21,7 +21,7 @@ let createWindow = async () => {
   mainWindow.loadURL(host);
   
   //minimize window on close
-  mainWindow.on('close', function (event) {
+  mainWindow.on('close', (event) => {
     if(!app.isQuiting) {
       event.preventDefault();
       mainWindow.hide();
