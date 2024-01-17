@@ -4,12 +4,11 @@ spec:
     - name: web
       instance_count: 1
       instance_size_slug: basic-xs
-      environment_slug: node-js
-      git:
-        repo_clone_url: https://github.com/AlphaInsider/trading_bot.git
-        branch: master
-      build_command: npm install
-      run_command: npm start
+      image:
+        registry_type: DOCKER_HUB
+        registry: alphainsider
+        repository: trading_bot
+        tag: latest
       health_check:
         http_path: /
         initial_delay_seconds: 30
