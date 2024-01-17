@@ -1,6 +1,7 @@
 .idea/
 node_modules/
 public/
+database.sqlite3
 
 .env
 test.js

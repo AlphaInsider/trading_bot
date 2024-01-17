@@ -26,12 +26,13 @@
     "pg": "^8.11.3",
     "semver": "^7.5.4",
     "serve-favicon": "^2.5.0",
+    "sqlite3": "^5.1.7",
     "ws": "^8.13.0",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
     "dotenv": "^16.3.1",
-    "electron": "^25.4.0",
+    "electron": "^28.1.1",
     "nodemon": "^3.0.1"
   }
 }
