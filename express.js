@@ -345,50 +345,6 @@ router.post('/stopBot',
   }
 );
 
-//CHECK: *rebalance
-router.post('/rebalance',
-  auth(),
-  (req, res, next) => {
-    server.rebalance({
-      ...req.body
-    })
-    .then((data) => {
-      res.json({
-        success: true,
-        response: data
-      });
-    })
-    .catch((error) => {
-      res.status(400).json({
-        success: false,
-        response: 'Request failed.'
-      });
-    });
-  }
-);
-
-//CHECK: *closeAllPositions
-router.post('/closeAllPositions',
-  auth(),
-  (req, res, next) => {
-    server.closeAllPositions({
-      ...req.body
-    })
-    .then((data) => {
-      res.json({
-        success: true,
-        response: data
-      });
-    })
-    .catch((error) => {
-      res.status(400).json({
-        success: false,
-        response: 'Request failed.'
-      });
-    });
-  }
-);
-
 //CHECK: *getStrategies <[strategy_id]> --timeframe--
 router.get('/getStrategies',
   auth(),
