@@ -1,5 +1,3 @@
-# !! UNDER ACTIVE DEVELOPEMENT, NOT READY FOR USE!!
-
 # trading_bot
 Trading bot that follows AlphaInsider strategies
 
@@ -7,14 +5,8 @@ Trading bot that follows AlphaInsider strategies
 
 [![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/AlphaInsider/trading_bot/tree/master)
 
-## Run
+## Run Locally
 `$ docker compose up`
 
-## Test
-`$ docker compose run trading_bot bash`  
-`$ node test.js`
-
-# Build Production Services
-$ docker-compose -f docker-compose-prod.yml build --no-cache
-# Publish image to dockerhub (tag optional)
-$ docker push alphainsider/<service>:<tag?>
+### Client Side Code Can be Found Here:
+[trading_bot_client](https://github.com/AlphaInsider/trading_bot_client)
