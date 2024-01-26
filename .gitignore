@@ -2,6 +2,7 @@
 node_modules/
 public/
 database.sqlite3
+package-lock.json
 
 .env
 test.js
