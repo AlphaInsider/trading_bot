@@ -18,13 +18,14 @@ if(args.electron) {
     db: require('knex')({
       client: 'sqlite3',
       connection: {
-        filename: './database.sqlite3'
+        filename: args.db || path.resolve(__dirname, './database.sqlite3')
       },
       pool: {max: 10},
       debug: false,
       migrations: {
-        directory: './database/migrations'
-      }
+        directory: path.resolve(__dirname, './database/migrations')
+      },
+      useNullAsDefault: true
     })
   });
 }
@@ -39,7 +40,7 @@ else {
       pool: {max: 10},
       debug: false,
       migrations: {
-        directory: './database/migrations'
+        directory: path.resolve(__dirname, './database/migrations')
       }
     }),
     password: process.env['USER_PASSWORD'] || crypto.randomBytes(64).toString('base64')
@@ -426,7 +427,7 @@ app.use((err, req, res, next) => {
 //start http server
 let httpServer = undefined;
 if(args.electron) {
-  let port = 3001;
+  let port = 5050;
   app.set('port', port);
   httpServer = http.createServer(app);
   httpServer.listen(port, 'localhost');
