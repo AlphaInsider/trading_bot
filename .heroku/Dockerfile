@@ -1,1 +1,0 @@
-FROM alphainsider/trading_bot:latest
