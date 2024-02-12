@@ -1,6 +1,7 @@
 .idea/
 node_modules/
 public/
+out/
 database.sqlite3
 package-lock.json
 
