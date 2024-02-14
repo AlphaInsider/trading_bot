@@ -6,7 +6,7 @@ on:
 jobs:
   # build app
   build_app:
-    uses: .github/workflows/_build_app.yml@dev
+    uses: ./.github/workflows/_build_app.yml@dev
   
   # push docker
   push_docker:
