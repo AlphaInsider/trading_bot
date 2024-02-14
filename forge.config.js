@@ -1,5 +1,9 @@
+const path = require('path');
+
 module.exports = {
   packagerConfig: {
+    name: 'AlphaBot',
+    icon: path.resolve(__dirname, './public/electron/desktop_icon'),
     ignore: (filePath) => {
       let allowList = [
         'node_modules/',
@@ -24,15 +28,19 @@ module.exports = {
       name: '@electron-forge/maker-zip'
     },*/
     // windows
-    /*{
+    {
       name: '@electron-forge/maker-squirrel',
-      config: {}
+      config: {
+        //loadingGif: '',
+        iconUrl: path.resolve(__dirname, './public/electron/desktop_icon.ico'),
+        setupIcon: path.resolve(__dirname, './public/electron/desktop_icon.ico')
+      }
     },
     // macOS
     {
       name: '@electron-forge/maker-dmg',
       config: {}
-    },*/
+    },
     //TODO: linux
     {
       name: '@electron-forge/maker-deb',
