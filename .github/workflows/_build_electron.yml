@@ -1,0 +1,40 @@
+name: Build Electron App
+
+on:
+  workflow_call:
+
+jobs:
+  build_electron:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      # get app artifacts
+      - name: Get app artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: built-app
+      
+      # setup node
+      - name: Setup node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      
+      # build electron
+      - name: Build electron app
+        shell: bash
+        run: |
+          npm install
+          npm run electron-make
+      
+      #TODO: upload artifacts
+      - name: Upload electron artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-electron-${{ matrix.os }}
+          path: |
+            ${{ matrix.os == 'ubuntu-latest' && 'path/to/linux/app.deb' || '' }}
+            ${{ matrix.os == 'macos-latest' && 'path/to/mac/app.dmg' || '' }}
+            ${{ matrix.os == 'windows-latest' && 'path/to/windows/app.exe' || '' }}

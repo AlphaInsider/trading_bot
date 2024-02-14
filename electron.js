@@ -14,8 +14,9 @@ let createWindow = async () => {
   //create electron window
   mainWindow = new BrowserWindow({
     title: 'AlphaBot',
-    width: 1200,
-    height: 1000
+    width: 1000,
+    height: 800,
+    autoHideMenuBar: true
   });
   
   //open external links in user's default browser
