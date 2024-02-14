@@ -1,0 +1,53 @@
+name: Build Client and Server App
+
+on:
+  workflow_call:
+
+jobs:
+  build_app:
+    runs-on: ubuntu-latest
+    steps:
+      # checkout client
+      - name: Checkout trading_bot_client
+        uses: actions/checkout@v4
+        with:
+          repository: AlphaInsider/trading_bot_client
+          ref: master
+          path: trading_bot_client
+      
+      # checkout server
+      - name: Checkout trading_bot
+        uses: actions/checkout@v4
+        with:
+          repository: AlphaInsider/trading_bot
+          ref: master
+          path: trading_bot
+      
+      #TODO: verify client and server versions match
+      
+      # setup node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      
+      # build client
+      - name: Build trading_bot_client
+        shell: bash
+        run: |
+          cd trading_bot_client
+          npm install
+          npm run build
+      
+      # move client to server
+      - name: Move dist to trading_bot public folder
+        shell: bash
+        run: |
+          mv trading_bot_client/dist trading_bot/public/
+      
+      # upload artifacts
+      - name: Upload app artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-app
+          path: trading_bot
