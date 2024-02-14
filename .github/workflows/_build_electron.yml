@@ -16,12 +16,20 @@ jobs:
         with:
           name: built-app
       
-      #TODO: build electron
+      #TODO: install ubuntu dependencies
+      #TODO: https://github.com/electron/forge/issues/2561
+      - name: Install Ubuntu dependencies
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          sudo apt-get install -y flatpak flatpak-builder elfutils
+          flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
+          git config --global --add protocol.file.allow always
+      
+      # build electron
       - name: Build electron app
         shell: bash
         run: |
-          # https://github.com/electron/forge/issues/2561
-          flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
           npm install
           npm run electron-make
       
@@ -31,6 +39,6 @@ jobs:
         with:
           name: built-electron-${{ matrix.os }}
           path: |
-            ${{ matrix.os == 'ubuntu-latest' && 'path/to/linux/app.deb' || '' }}
-            ${{ matrix.os == 'macos-latest' && 'path/to/mac/app.dmg' || '' }}
-            ${{ matrix.os == 'windows-latest' && 'path/to/windows/app.exe' || '' }}
+            ${{ matrix.os == 'ubuntu-latest' && find ./out/make -type f -name "*.flatpak" || '' }}
+            ${{ matrix.os == 'macos-latest' && find ./out/make -type f -name "*.dmg" || '' }}
+            ${{ matrix.os == 'windows-latest' && find ./out/make -type f -name "*.exe" || '' }}
