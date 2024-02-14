@@ -14,8 +14,9 @@ let createWindow = async () => {
   //create electron window
   mainWindow = new BrowserWindow({
     title: 'AlphaBot',
-    width: 1200,
-    height: 1000
+    width: 1000,
+    height: 800,
+    autoHideMenuBar: true
   });
   
   //open external links in user's default browser
@@ -91,7 +92,7 @@ app.on('second-instance', async () => {
 //start app
 app.on('ready', async () => {
   //spawn express server
-  expressAppProcess = spawn('node', [
+  expressAppProcess = spawn(process.execPath, [
     path.resolve(__dirname, './express.js'),
     '--electron',
     '--db='+path.join(app.getPath('userData'), 'database.sqlite3')

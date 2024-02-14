@@ -1,0 +1,61 @@
+name: Merge dev master
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+        description: 'Version Number (eg: 0.0.0)'
+
+jobs:
+  merge_master:
+    runs-on: ubuntu-latest
+    steps:
+      # verify version format
+      - name: Verify version format
+        shell: bash
+        run: |
+          if ! [[ "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Invalid version format."
+            exit 1
+          fi
+      
+      # checkout dev
+      - name: Checkout dev
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+      
+      #TODO: debug
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+      
+      # update package version
+      - name: Update package.json version
+        shell: bash
+        run: |
+          NEW_VERSION="${{ github.event.inputs.version }}"
+          sed -i 's/"version": ".*"/"version": "'"$NEW_VERSION"'"/' package.json
+      
+      # commit changes
+      - name: Commit changes
+        shell: bash
+        run: |
+          git config --global user.name "Github Action"
+          git config --global user.email "support@alphainsider.freshdesk.com"
+          git add package.json
+          git commit -m "Updated version"
+          git push origin dev
+      
+      # merge dev to master
+      - name: Merge dev to master
+        shell: bash
+        run: |
+          git fetch origin master
+          git checkout master
+          git merge origin/dev --no-ff -m "Merged dev to master"
+          git push origin master
