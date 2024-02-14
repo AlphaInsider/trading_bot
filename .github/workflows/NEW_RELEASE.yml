@@ -11,19 +11,19 @@ on:
 jobs:
   # merge master
   merge_master:
-    uses: .github/workflows/_merge_master.yml@dev
+    uses: ./.github/workflows/_merge_master.yml@dev
     with:
       version: ${{ github.event.inputs.version }}
   
   # build app
   build_app:
     needs: merge_master
-    uses: .github/workflows/_build_app.yml@dev
+    uses: ./.github/workflows/_build_app.yml@dev
   
   # build electron
   build_electron:
     needs: build_app
-    uses: .github/workflows/_build_electron.yml@dev
+    uses: ./.github/workflows/_build_electron.yml@dev
   
   # new release
   new_release:
