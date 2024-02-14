@@ -45,7 +45,7 @@ jobs:
         with:
           tag_name: v${{ github.event.inputs.version }}
           release_name: Release v${{ github.event.inputs.version }}
-          draft: false
+          draft: true #TODO: set to false
       
       # get electron artifacts
       - name: Get electron artifacts
