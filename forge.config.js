@@ -23,10 +23,6 @@ module.exports = {
     }
   },
   makers: [
-    // zip
-    /*{
-      name: '@electron-forge/maker-zip'
-    },*/
     // windows
     {
       name: '@electron-forge/maker-squirrel',
@@ -46,11 +42,9 @@ module.exports = {
     },
     //TODO: linux
     {
-      name: '@electron-forge/maker-deb',
+      name: '@electron-forge/maker-flatpak',
       config: {
-        productName: 'AlphaBot',
-        productDescription: 'Auto trade any AlphaInsider strategy with your broker.',
-        categories: ['Utility']
+        options: {}
       }
     }
   ],
