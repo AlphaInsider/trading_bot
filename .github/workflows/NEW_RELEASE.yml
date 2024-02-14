@@ -8,22 +8,25 @@ on:
         required: true
         description: 'Version Number (eg: 0.0.0)'
 
+permissions:
+  contents: write
+
 jobs:
   # merge master
   merge_master:
-    uses: .github/workflows/_merge_master.yml@dev
+    uses: AlphaInsider/trading_bot/.github/workflows/_merge_master.yml@dev
     with:
       version: ${{ github.event.inputs.version }}
   
   # build app
   build_app:
     needs: merge_master
-    uses: .github/workflows/_build_app.yml@dev
+    uses: AlphaInsider/trading_bot/.github/workflows/_build_app.yml@dev
   
   # build electron
   build_electron:
     needs: build_app
-    uses: .github/workflows/_build_electron.yml@dev
+    uses: AlphaInsider/trading_bot/.github/workflows/_build_electron.yml@dev
   
   # new release
   new_release:
@@ -45,7 +48,7 @@ jobs:
         with:
           tag_name: v${{ github.event.inputs.version }}
           release_name: Release v${{ github.event.inputs.version }}
-          draft: false
+          draft: true #TODO: set to false
       
       # get electron artifacts
       - name: Get electron artifacts

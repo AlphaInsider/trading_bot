@@ -8,6 +8,9 @@ on:
         required: true
         description: 'Version Number (eg: 0.0.0)'
 
+permissions:
+  contents: write
+
 jobs:
   merge_master:
     runs-on: ubuntu-latest
