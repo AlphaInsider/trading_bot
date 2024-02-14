@@ -8,9 +8,6 @@ on:
         required: true
         description: 'Version Number (eg: 0.0.0)'
 
-permissions:
-  contents: write
-
 jobs:
   merge_master:
     runs-on: ubuntu-latest
@@ -30,12 +27,6 @@ jobs:
         with:
           ref: dev
           fetch-depth: 0
-      
-      #TODO: debug
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true
       
       # update package version
       - name: Update package.json version

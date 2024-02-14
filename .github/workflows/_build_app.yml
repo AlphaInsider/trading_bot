@@ -23,6 +23,12 @@ jobs:
           ref: master
           path: trading_bot
       
+      #TODO: debug
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+      
       #TODO: verify client and server versions match
       
       # setup node
