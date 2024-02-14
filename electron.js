@@ -91,7 +91,7 @@ app.on('second-instance', async () => {
 //start app
 app.on('ready', async () => {
   //spawn express server
-  expressAppProcess = spawn('node', [
+  expressAppProcess = spawn(process.execPath, [
     path.resolve(__dirname, './express.js'),
     '--electron',
     '--db='+path.join(app.getPath('userData'), 'database.sqlite3')

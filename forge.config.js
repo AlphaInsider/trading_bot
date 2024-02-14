@@ -39,7 +39,10 @@ module.exports = {
     // macOS
     {
       name: '@electron-forge/maker-dmg',
-      config: {}
+      config: {
+        icon: path.resolve(__dirname, './public/electron/desktop_icon.icns'),
+        format: 'ULFO'
+      }
     },
     //TODO: linux
     {
