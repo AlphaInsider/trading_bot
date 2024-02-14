@@ -14,6 +14,7 @@ let createWindow = async () => {
   //create electron window
   mainWindow = new BrowserWindow({
     title: 'AlphaBot',
+    icon: path.resolve(__dirname, './public/electron/desktop_icon.png'),
     width: 1200,
     height: 1000
   });
@@ -45,7 +46,7 @@ let createWindow = async () => {
 //DONE: createTray
 let createTray = async () => {
   //create tray
-  tray = new Tray(path.resolve(__dirname, './public/electron/desktop_icon.png'));
+  tray = new Tray(path.resolve(__dirname, './public/electron/tray_icon.png'));
   
   //right click menu
   tray.setContextMenu(Menu.buildFromTemplate([
