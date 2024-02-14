@@ -38,7 +38,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: built-electron-${{ matrix.os }}
-          path: |
-            ${{ matrix.os == 'ubuntu-latest' && find ./out/make -type f -name "*.flatpak" || '' }}
-            ${{ matrix.os == 'macos-latest' && find ./out/make -type f -name "*.dmg" || '' }}
-            ${{ matrix.os == 'windows-latest' && find ./out/make -type f -name "*.exe" || '' }}
+          path: ./out/make
