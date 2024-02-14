@@ -16,12 +16,6 @@ jobs:
         with:
           name: built-app
       
-      # setup node
-      - name: Setup node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-      
       # build electron
       - name: Build electron app
         shell: bash

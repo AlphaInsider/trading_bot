@@ -29,13 +29,16 @@ jobs:
         with:
           limit-access-to-actor: true
       
-      #TODO: verify client and server versions match
-      
-      # setup node
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+      # verify client and server versions match
+      - name: Verify client and server versions match
+        shell: bash
+        run: |
+          if ["$(jq -r '.version' ./trading_bot/package.json)" != "$(jq -r '.version' ./trading_bot_client/package.json)"]; then
+            echo "ERROR: Client and server versions do not match."
+            exit 1
+          else
+            echo "Versions match."
+          fi
       
       # build client
       - name: Build trading_bot_client
