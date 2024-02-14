@@ -1,5 +1,7 @@
 {
   "name": "alpha_bot",
+  "author": "AlphaInsider",
+  "description": "Auto trade any AlphaInsider strategy with your broker.",
   "version": "1.1.2",
   "private": true,
   "main": "electron.js",
