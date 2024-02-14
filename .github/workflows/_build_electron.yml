@@ -16,10 +16,12 @@ jobs:
         with:
           name: built-app
       
-      # build electron
+      #TODO: build electron
       - name: Build electron app
         shell: bash
         run: |
+          # https://github.com/electron/forge/issues/2561
+          flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
           npm install
           npm run electron-make
       
