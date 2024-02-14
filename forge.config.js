@@ -4,7 +4,7 @@ module.exports = {
   packagerConfig: {
     name: 'AlphaBot',
     icon: path.resolve(__dirname, './public/electron/desktop_icon'),
-    ignore: (filePath) => {
+/*    ignore: (filePath) => {
       let allowList = [
         'node_modules/',
         'database/',
@@ -20,7 +20,7 @@ module.exports = {
           ? normalizedPath === '/'+item.slice(0, -1) || normalizedPath.startsWith('/'+item)
           : normalizedPath === '/'+item
       });
-    }
+    }*/
   },
   makers: [
     // windows

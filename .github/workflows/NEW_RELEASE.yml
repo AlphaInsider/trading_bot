@@ -39,6 +39,12 @@ jobs:
         with:
           ref: master
       
+      #TODO: debug
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+      
       # create release
       - name: Create release
         id: create_release
