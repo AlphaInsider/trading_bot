@@ -1,10 +1,12 @@
+const fs = require('fs');
 const path = require('path');
 
 module.exports = {
   packagerConfig: {
     name: 'AlphaBot',
+    executableName: 'alpha_bot',
     icon: path.resolve(__dirname, './public/electron/desktop_icon'),
-/*    ignore: (filePath) => {
+    ignore: (() => {
       let allowList = [
         'node_modules/',
         'database/',
@@ -14,13 +16,10 @@ module.exports = {
         'express.js',
         'package.json'
       ];
-      let normalizedPath = filePath.replace(/\\/g, '/');
-      return normalizedPath && !allowList.some((item) => {
-        return '/'+item.endsWith('/')
-          ? normalizedPath === '/'+item.slice(0, -1) || normalizedPath.startsWith('/'+item)
-          : normalizedPath === '/'+item
-      });
-    }*/
+      let files = fs.readdirSync(path.resolve(__dirname, './'), {withFileTypes: true}).map(file => file.isDirectory() ? `${file.name}/` : file.name);
+      let ignoreList = files.filter(file => !allowList.includes(file)).map((file) => '/'+file.replace(/\/$/, ''));
+      return ignoreList;
+    })()
   },
   makers: [
     // windows
@@ -40,9 +39,9 @@ module.exports = {
         format: 'ULFO'
       }
     },
-    //TODO: linux
+    // linux
     {
-      name: '@electron-forge/maker-flatpak',
+      name: '@electron-forge/maker-deb',
       config: {
         options: {}
       }
