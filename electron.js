@@ -1,6 +1,6 @@
 const path = require('path');
 const {app, BrowserWindow, Tray, Menu, shell} = require('electron');
-const {spawn} = require('child_process');
+const {fork} = require('child_process');
 const axios = require('axios');
 
 if(require('electron-squirrel-startup')) app.quit();
@@ -94,17 +94,11 @@ app.on('second-instance', async () => {
 //start app
 app.on('ready', async () => {
   //spawn express server
-  expressAppProcess = spawn('node', [
-    path.resolve(__dirname, './express.js'),
+  expressAppProcess = fork(path.resolve(__dirname, './express.js'), [
     '--electron',
     '--db='+path.join(app.getPath('userData'), 'database.sqlite3')
-  ]);
-  expressAppProcess.stdout.on('data', (data) => {
-    console.log(data.toString());
-  });
-  expressAppProcess.stderr.on('data', (error) => {
-    console.error('\x1b[31m', error.toString(), '\x1b[0m');
-    app.quit();
+  ], {
+    silent: false
   });
 
   const checkServerReady = async () => {
