@@ -40,15 +40,15 @@ jobs:
           ref: master
       
       # create release
-      #- name: Create release
-      #  id: create_release
-      #  uses: actions/create-release@v1
-      #  env:
-      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #  with:
-      #    tag_name: v${{ github.event.inputs.version }}
-      #    release_name: Release v${{ github.event.inputs.version }}
-      #    draft: true #TODO: set to false
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          release_name: Release v${{ github.event.inputs.version }}
+          draft: true #TODO: set to false
       
       # get electron artifacts
       - name: Get electron artifacts
@@ -59,21 +59,26 @@ jobs:
           merge-multiple: true
       
       #TODO: debug
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true
+      #- name: Setup tmate session
+      #  uses: mxschmitt/action-tmate@v3
+      #  with:
+      #    limit-access-to-actor: true
       
       # upload release artifacts
-      #- name: Upload release artifacts
-      #  shell: bash
-      #  run: |
-      #    find ./release_artifacts -type f | while read FILE; do
-      #      echo "Uploading ${FILE}..."
-      #      curl \
-      #        -X POST \
-      #        -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-      #        -H "Content-Type: $(file -b --mime-type "${FILE}")" \
-      #        --data-binary @"${FILE}" \
-      #        "${{ steps.create_release.outputs.upload_url }}?name=$(basename "${FILE}")"
-      #    done
+      - name: Upload release artifacts
+        shell: bash
+        run: |
+          find ./release_artifacts -type f -regex ".*\.\(exe\|dmg\|deb\)$" | while read FILE; do
+            case "${FILE}" in
+              *.exe) FILENAME="AlphaBot-${{ github.event.inputs.version }}-windows.exe" ;;
+              *.dmg) FILENAME="AlphaBot-${{ github.event.inputs.version }}-macos.dmg" ;;
+              *.deb) FILENAME="AlphaBot-${{ github.event.inputs.version }}-linux.dmg" ;;
+            esac
+            echo "Uploading ${FILENAME}..."
+            curl \
+              -X POST \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Content-Type: $(file -b --mime-type "${FILE}")" \
+              --data-binary @"${FILE}" \
+              "${{ steps.create_release.outputs.upload_url }}?name=${FILENAME}"
+          done
