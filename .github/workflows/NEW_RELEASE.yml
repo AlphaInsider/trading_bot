@@ -58,27 +58,22 @@ jobs:
           pattern: built-electron-*
           merge-multiple: true
       
-      #TODO: debug
-      #- name: Setup tmate session
-      #  uses: mxschmitt/action-tmate@v3
-      #  with:
-      #    limit-access-to-actor: true
-      
       # upload release artifacts
       - name: Upload release artifacts
         shell: bash
         run: |
           find ./release_artifacts -type f -regex ".*\.\(exe\|dmg\|deb\)$" | while read FILE; do
-            case "${FILE}" in
-              *.exe) FILENAME="AlphaBot-${{ github.event.inputs.version }}-windows.exe" ;;
-              *.dmg) FILENAME="AlphaBot-${{ github.event.inputs.version }}-macos.dmg" ;;
-              *.deb) FILENAME="AlphaBot-${{ github.event.inputs.version }}-linux.dmg" ;;
-            esac
-            echo "Uploading ${FILENAME}..."
+            echo "Uploading ${FILE}..."
             curl \
               -X POST \
               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               -H "Content-Type: $(file -b --mime-type "${FILE}")" \
               --data-binary @"${FILE}" \
-              "${{ steps.create_release.outputs.upload_url }}?name=${FILENAME}"
+              "${{ steps.create_release.outputs.upload_url }}?name=$(basename "${FILE}")"
           done
+      
+      #TODO: debug
+      #- name: Setup tmate session
+      #  uses: mxschmitt/action-tmate@v3
+      #  with:
+      #    limit-access-to-actor: true
