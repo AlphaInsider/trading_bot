@@ -4,7 +4,7 @@ module.exports = {
   packagerConfig: {
     name: 'AlphaBot',
     icon: path.resolve(__dirname, './public/electron/desktop_icon'),
-    ignore: (filePath) => {
+/*    ignore: (filePath) => {
       let allowList = [
         'node_modules/',
         'database/',
@@ -20,13 +20,9 @@ module.exports = {
           ? normalizedPath === '/'+item.slice(0, -1) || normalizedPath.startsWith('/'+item)
           : normalizedPath === '/'+item
       });
-    }
+    }*/
   },
   makers: [
-    // zip
-    /*{
-      name: '@electron-forge/maker-zip'
-    },*/
     // windows
     {
       name: '@electron-forge/maker-squirrel',
@@ -39,15 +35,16 @@ module.exports = {
     // macOS
     {
       name: '@electron-forge/maker-dmg',
-      config: {}
+      config: {
+        icon: path.resolve(__dirname, './public/electron/desktop_icon.icns'),
+        format: 'ULFO'
+      }
     },
     //TODO: linux
     {
-      name: '@electron-forge/maker-deb',
+      name: '@electron-forge/maker-flatpak',
       config: {
-        productName: 'AlphaBot',
-        productDescription: 'Auto trade any AlphaInsider strategy with your broker.',
-        categories: ['Utility']
+        options: {}
       }
     }
   ],

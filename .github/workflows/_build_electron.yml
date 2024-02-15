@@ -1,0 +1,41 @@
+name: Build Electron App
+
+on:
+  workflow_call:
+
+jobs:
+  build_electron:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      # get app artifacts
+      - name: Get app artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: built-app
+      
+      #TODO: install ubuntu dependencies
+      #TODO: https://github.com/electron/forge/issues/2561
+      - name: Install Ubuntu dependencies
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          sudo apt-get install -y flatpak flatpak-builder elfutils
+          flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
+          git config --global --add protocol.file.allow always
+      
+      # build electron
+      - name: Build electron app
+        shell: bash
+        run: |
+          npm install
+          npm run electron-make
+      
+      #TODO: upload artifacts
+      - name: Upload electron artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-electron-${{ matrix.os }}
+          path: ./out/make

@@ -1,0 +1,56 @@
+name: Build Client and Server App
+
+on:
+  workflow_call:
+
+jobs:
+  build_app:
+    runs-on: ubuntu-latest
+    steps:
+      # checkout client
+      - name: Checkout trading_bot_client
+        uses: actions/checkout@v4
+        with:
+          repository: AlphaInsider/trading_bot_client
+          ref: master
+          path: trading_bot_client
+      
+      # checkout server
+      - name: Checkout trading_bot
+        uses: actions/checkout@v4
+        with:
+          repository: AlphaInsider/trading_bot
+          ref: master
+          path: trading_bot
+      
+      # verify client and server versions match
+      #- name: Verify client and server versions match
+      #  shell: bash
+      #  run: |
+      #    if ["$(jq -r '.version' ./trading_bot/package.json)" != "$(jq -r '.version' ./trading_bot_client/package.json)"]; then
+      #      echo "ERROR: Client and server versions do not match."
+      #      exit 1
+      #    else
+      #      echo "Versions match."
+      #    fi
+      
+      # build client
+      - name: Build trading_bot_client
+        shell: bash
+        run: |
+          cd trading_bot_client
+          npm install
+          npm run build
+      
+      # move client to server
+      - name: Move dist to trading_bot public folder
+        shell: bash
+        run: |
+          mv trading_bot_client/dist trading_bot/public/
+      
+      # upload artifacts
+      - name: Upload app artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-app
+          path: trading_bot

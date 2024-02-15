@@ -18,8 +18,9 @@ let createWindow = async () => {
   mainWindow = new BrowserWindow({
     title: 'AlphaBot',
     icon: path.resolve(__dirname, './public/electron/desktop_icon.png'),
-    width: 1200,
-    height: 1000
+    width: 1000,
+    height: 800,
+    autoHideMenuBar: true
   });
   
   //open external links in user's default browser

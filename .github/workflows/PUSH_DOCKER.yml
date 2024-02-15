@@ -1,0 +1,30 @@
+name: Push Docker
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # build app
+  build_app:
+    uses: ./.github/workflows/_build_app.yml@dev
+  
+  # push docker
+  push_docker:
+    needs: build_app
+    runs-on: ubuntu-latest
+    steps:
+      # get app artifacts
+      - name: Get app artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: built-app
+      
+      #TODO: build docker image
+      - name: Build docker image
+        shell: bash
+        run: |
+      
+      #TODO: publish docker image
+      - name: Publish docker image
+        shell: bash
+        run: |
