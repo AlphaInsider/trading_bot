@@ -1,6 +1,8 @@
 const path = require('path');
 const {app, BrowserWindow, Tray, Menu, shell} = require('electron');
-const {spawn} = require('child_process');
+const {fork} = require('child_process');
+const axios = require('axios');
+
 if(require('electron-squirrel-startup')) app.quit();
 
 const host = 'http://localhost:5050';
@@ -8,12 +10,14 @@ const host = 'http://localhost:5050';
 let mainWindow = undefined;
 let tray = undefined;
 let expressAppProcess = undefined;
+let isQuitting = false;
 
 //DONE: createWindow
 let createWindow = async () => {
   //create electron window
   mainWindow = new BrowserWindow({
     title: 'AlphaBot',
+    icon: path.resolve(__dirname, './public/electron/desktop_icon.png'),
     width: 1000,
     height: 800,
     autoHideMenuBar: true
@@ -33,7 +37,7 @@ let createWindow = async () => {
   
   //minimize window on close
   mainWindow.on('close', (event) => {
-    if(!app.isQuiting) {
+    if(!isQuitting) {
       event.preventDefault();
       mainWindow.hide();
     }
@@ -46,7 +50,7 @@ let createWindow = async () => {
 //DONE: createTray
 let createTray = async () => {
   //create tray
-  tray = new Tray(path.resolve(__dirname, './public/electron/desktop_icon.png'));
+  tray = new Tray(path.resolve(__dirname, './public/electron/tray_icon.png'));
   
   //right click menu
   tray.setContextMenu(Menu.buildFromTemplate([
@@ -79,43 +83,65 @@ let createTray = async () => {
 }
 
 //==== START ====
-//prevent multiple instances
-const firstInstance = app.requestSingleInstanceLock();
-if(!firstInstance) app.quit();
-app.on('second-instance', async () => {
-  if(mainWindow && !mainWindow.isVisible()) {
-    await mainWindow.loadURL(host);
-    mainWindow.show();
-  }
-});
+//prevent multiple window instances
+app.on('activate', () => Promise.resolve().then(async () => {
+  if(BrowserWindow.getAllWindows().length === 0) await createWindow();
+  else mainWindow.show();
+}).catch((error) => {}))
 
 //start app
-app.on('ready', async () => {
-  //spawn express server
-  expressAppProcess = spawn(process.execPath, [
-    path.resolve(__dirname, './express.js'),
+app.on('ready', () => Promise.resolve().then(async () => {
+  //fork new express server instance off of electron app
+  expressAppProcess = fork(path.resolve(__dirname, './express.js'), [
     '--electron',
     '--db='+path.join(app.getPath('userData'), 'database.sqlite3')
-  ]);
-  expressAppProcess.stdout.on('data', (data) => {
-    console.log(data.toString());
+  ], {
+    silent: false
   });
-  expressAppProcess.stderr.on('data', (error) => {
-    console.error('\x1b[31m', error.toString(), '\x1b[0m');
+
+  const checkServerReady = async () => {
+    try {
+      const response = await axios.get(host);
+      if (response.status === 200) {
+        // Server is ready
+        return true;
+      }
+    } catch (error) {
+      // Server not ready
+      return false;
+    }
+  }
+
+  const waitForServerToBeReady = async () => {
+    let serverReady = false;
+    let attempts = 0;
+    while (!serverReady && attempts < 10) { // Try for a maximum of 10 attempts
+      serverReady = await checkServerReady();
+      if (!serverReady) {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+        attempts++;
+      }
+    }
+    return serverReady;
+  }
+
+  // Wait for express server to spin up
+  const serverReady = await waitForServerToBeReady();
+  if (!serverReady) {
+    console.error("Failed to start the Express server.");
     app.quit();
-  });
-  
-  //wait for express server to spin up
-  await new Promise(resolve => setTimeout(resolve, 2000));
+    return;
+  }
   
   //create window
-  createWindow();
+  await createWindow();
   
   //create tray
-  createTray();
-});
+  await createTray();
+}).catch((error) => {}));
 
 //stop app
-app.on('will-quit', () => {
+app.on('before-quit', () => {
+  isQuitting = true;
   if(expressAppProcess) expressAppProcess.kill();
 });
