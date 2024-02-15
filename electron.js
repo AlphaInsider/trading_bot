@@ -72,6 +72,7 @@ let createTray = async () => {
   
   //click to reopen
   tray.on('click', async () => {
+    if(process.platform === 'darwin') return;
     if(mainWindow.isVisible()) {
       mainWindow.hide();
     }
@@ -83,11 +84,15 @@ let createTray = async () => {
 }
 
 //==== START ====
-//prevent multiple window instances
-app.on('activate', () => Promise.resolve().then(async () => {
-  if(BrowserWindow.getAllWindows().length === 0) await createWindow();
-  else mainWindow.show();
-}).catch((error) => {}))
+//prevent multiple instances
+const firstInstance = app.requestSingleInstanceLock();
+if(!firstInstance) app.quit();
+app.on('second-instance', async () => {
+  if(mainWindow && !mainWindow.isVisible()) {
+    await mainWindow.loadURL(host);
+    mainWindow.show();
+  }
+});
 
 //start app
 app.on('ready', () => Promise.resolve().then(async () => {
