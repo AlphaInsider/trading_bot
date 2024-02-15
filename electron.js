@@ -1,6 +1,8 @@
 const path = require('path');
 const {app, BrowserWindow, Tray, Menu, shell} = require('electron');
 const {spawn} = require('child_process');
+const axios = require('axios');
+
 if(require('electron-squirrel-startup')) app.quit();
 
 const host = 'http://localhost:5050';
@@ -104,9 +106,40 @@ app.on('ready', async () => {
     console.error('\x1b[31m', error.toString(), '\x1b[0m');
     app.quit();
   });
-  
-  //wait for express server to spin up
-  await new Promise(resolve => setTimeout(resolve, 2000));
+
+  const checkServerReady = async () => {
+    try {
+      const response = await axios.get(host);
+      if (response.status === 200) {
+        // Server is ready
+        return true;
+      }
+    } catch (error) {
+      // Server not ready
+      return false;
+    }
+  }
+
+  const waitForServerToBeReady = async () => {
+    let serverReady = false;
+    let attempts = 0;
+    while (!serverReady && attempts < 10) { // Try for a maximum of 10 attempts
+      serverReady = await checkServerReady();
+      if (!serverReady) {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+        attempts++;
+      }
+    }
+    return serverReady;
+  }
+
+  // Wait for express server to spin up
+  const serverReady = await waitForServerToBeReady();
+  if (!serverReady) {
+    console.error("Failed to start the Express server.");
+    app.quit();
+    return;
+  }
   
   //create window
   createWindow();
