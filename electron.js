@@ -10,6 +10,7 @@ const host = 'http://localhost:5050';
 let mainWindow = undefined;
 let tray = undefined;
 let expressAppProcess = undefined;
+let isQuitting = false;
 
 //DONE: createWindow
 let createWindow = async () => {
@@ -35,7 +36,7 @@ let createWindow = async () => {
   
   //minimize window on close
   mainWindow.on('close', (event) => {
-    if(!app.isQuiting) {
+    if(!isQuitting) {
       event.preventDefault();
       mainWindow.hide();
     }
@@ -81,19 +82,15 @@ let createTray = async () => {
 }
 
 //==== START ====
-//prevent multiple instances
-const firstInstance = app.requestSingleInstanceLock();
-if(!firstInstance) app.quit();
-app.on('second-instance', async () => {
-  if(mainWindow && !mainWindow.isVisible()) {
-    await mainWindow.loadURL(host);
-    mainWindow.show();
-  }
-});
+//prevent multiple window instances
+app.on('activate', () => Promise.resolve().then(async () => {
+  if(BrowserWindow.getAllWindows().length === 0) await createWindow();
+  else mainWindow.show();
+}).catch((error) => {}))
 
 //start app
-app.on('ready', async () => {
-  //spawn express server
+app.on('ready', () => Promise.resolve().then(async () => {
+  //fork new express server instance off of electron app
   expressAppProcess = fork(path.resolve(__dirname, './express.js'), [
     '--electron',
     '--db='+path.join(app.getPath('userData'), 'database.sqlite3')
@@ -136,13 +133,14 @@ app.on('ready', async () => {
   }
   
   //create window
-  createWindow();
+  await createWindow();
   
   //create tray
-  createTray();
-});
+  await createTray();
+}).catch((error) => {}));
 
 //stop app
-app.on('will-quit', () => {
+app.on('before-quit', () => {
+  isQuitting = true;
   if(expressAppProcess) expressAppProcess.kill();
 });
