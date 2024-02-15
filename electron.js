@@ -18,7 +18,7 @@ let createWindow = async () => {
   mainWindow = new BrowserWindow({
     title: 'AlphaBot',
     icon: path.resolve(__dirname, './public/electron/desktop_icon.png'),
-    width: 1000,
+    width: 1200,
     height: 800,
     autoHideMenuBar: true
   });
@@ -64,7 +64,6 @@ let createTray = async () => {
     {
       label: 'Quit',
       click: async () => {
-        app.isQuiting = true;
         app.quit();
       }
     }
