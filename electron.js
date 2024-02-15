@@ -85,7 +85,7 @@ let createTray = async () => {
 //==== START ====
 //prevent multiple instances
 const firstInstance = app.requestSingleInstanceLock();
-if(!firstInstance) app.quit();
+if(!firstInstance) app.exit();
 app.on('second-instance', async () => {
   if(mainWindow && !mainWindow.isVisible()) {
     await mainWindow.loadURL(host);
@@ -95,47 +95,30 @@ app.on('second-instance', async () => {
 
 //start app
 app.on('ready', () => Promise.resolve().then(async () => {
-  //fork new express server instance off of electron app
+  //start express server
   expressAppProcess = fork(path.resolve(__dirname, './express.js'), [
     '--electron',
     '--db='+path.join(app.getPath('userData'), 'database.sqlite3')
   ], {
     silent: false
   });
-
-  const checkServerReady = async () => {
-    try {
-      const response = await axios.get(host);
-      if (response.status === 200) {
-        // Server is ready
-        return true;
-      }
-    } catch (error) {
-      // Server not ready
-      return false;
-    }
+  
+  //wait for express server to start
+  let waitForServer = async (attempt = 0) => {
+    if(attempt <= 0) throw new Error('Failed to start express server.');
+    return axios.get(host)
+    .then((data) => {
+      if(data.status !== 200) throw new Error('Server not ready.');
+    })
+    .catch(async (error) => {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return waitForServer(attempt-1);
+    });
   }
-
-  const waitForServerToBeReady = async () => {
-    let serverReady = false;
-    let attempts = 0;
-    while (!serverReady && attempts < 10) { // Try for a maximum of 10 attempts
-      serverReady = await checkServerReady();
-      if (!serverReady) {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
-        attempts++;
-      }
-    }
-    return serverReady;
-  }
-
-  // Wait for express server to spin up
-  const serverReady = await waitForServerToBeReady();
-  if (!serverReady) {
-    console.error("Failed to start the Express server.");
+  await waitForServer(20).catch((error) => {
     app.quit();
-    return;
-  }
+    throw error;
+  });
   
   //create window
   await createWindow();
