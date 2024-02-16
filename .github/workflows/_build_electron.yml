@@ -1,4 +1,4 @@
-name: Build Electron App
+name: _build_electron
 
 on:
   workflow_call:
