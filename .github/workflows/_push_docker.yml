@@ -19,7 +19,6 @@ jobs:
         with:
           repository: AlphaInsider/trading_bot
           ref: master
-          path: trading_bot
       
       # get app artifacts
       - name: Get app artifacts
