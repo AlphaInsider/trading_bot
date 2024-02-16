@@ -24,13 +24,13 @@ jobs:
     uses: ./.github/workflows/_build_app.yml
   
   # build electron
-  build_electron:
-    needs: build_app
-    uses: ./.github/workflows/_build_electron.yml
+#  build_electron:
+#    needs: build_app
+#    uses: ./.github/workflows/_build_electron.yml
   
   # push docker
   push_docker:
-    needs: build_electron
+    needs: build_app
     uses: ./.github/workflows/_push_docker.yml
     with:
       version: ${{ github.event.inputs.version }}
