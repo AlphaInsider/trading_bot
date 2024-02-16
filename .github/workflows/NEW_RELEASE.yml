@@ -1,4 +1,4 @@
-name: New Release
+name: NEW_RELEASE
 
 on:
   workflow_dispatch:

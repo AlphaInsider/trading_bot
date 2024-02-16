@@ -1,4 +1,4 @@
-name: Build Client and Server App
+name: _build_app
 
 on:
   workflow_call:
