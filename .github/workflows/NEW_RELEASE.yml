@@ -13,20 +13,27 @@ permissions:
 
 jobs:
   # merge master
-#  merge_master:
-#    uses: AlphaInsider/trading_bot/.github/workflows/_merge_master.yml@dev
-#    with:
-#      version: ${{ github.event.inputs.version }}
+  merge_master:
+    uses: ./.github/workflows/_merge_master.yml
+    with:
+      version: ${{ github.event.inputs.version }}
   
   # build app
-#  build_app:
-#    needs: merge_master
-#    uses: AlphaInsider/trading_bot/.github/workflows/_build_app.yml@dev
+  build_app:
+    needs: merge_master
+    uses: ./.github/workflows/_build_app.yml
   
   # build electron
-#  build_electron:
-#    needs: build_app
-#    uses: AlphaInsider/trading_bot/.github/workflows/_build_electron.yml@dev
+  build_electron:
+    needs: build_app
+    uses: ./.github/workflows/_build_electron.yml
+  
+  # push docker
+  push_docker:
+    needs: build_electron
+    uses: ./.github/workflows/_push_docker.yml
+    with:
+      version: ${{ github.event.inputs.version }}
   
   # new release
   new_release:
@@ -36,22 +43,23 @@ jobs:
       # create release
       - name: Create release
         id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          repo: AlphaInsider/trading_bot@master
+          target_commitish: master
           tag_name: v${{ github.event.inputs.version }}
-          release_name: Release v${{ github.event.inputs.version }}
+          name: Release v${{ github.event.inputs.version }}
+          generate_release_notes: true
           draft: true
       
       # get electron artifacts
-#      - name: Get electron artifacts
-#        uses: actions/download-artifact@v4
-#        with:
-#          path: release_artifacts
-#          pattern: built-electron-*
-#          merge-multiple: true
+      - name: Get electron artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release_artifacts
+          pattern: built-electron-*
+          merge-multiple: true
       
       #TODO: debug
       - name: Setup tmate session
@@ -60,15 +68,15 @@ jobs:
           limit-access-to-actor: true
       
       # upload release artifacts
-      - name: Upload release artifacts
-        shell: bash
-        run: |
-          find ./release_artifacts -type f -regex ".*\.\(exe\|dmg\|deb\)$" | while read FILE; do
-            echo "Uploading ${FILE}..."
-            curl \
-              -X POST \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Content-Type: $(file -b --mime-type "${FILE}")" \
-              --data-binary @"${FILE}" \
-              "${{ steps.create_release.outputs.upload_url }}?name=$(basename "${FILE}")"
-          done
+#      - name: Upload release artifacts
+#        shell: bash
+#        run: |
+#          find ./release_artifacts -type f -regex ".*\.\(exe\|dmg\|deb\)$" | while read FILE; do
+#            echo "Uploading ${FILE}..."
+#            curl \
+#              -X POST \
+#              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+#              -H "Content-Type: $(file -b --mime-type "${FILE}")" \
+#              --data-binary @"${FILE}" \
+#              "${{ steps.create_release.outputs.upload_url }}?name=$(basename "${FILE}")"
+#          done
