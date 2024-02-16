@@ -13,32 +13,26 @@ permissions:
 
 jobs:
   # merge master
-  merge_master:
-    uses: AlphaInsider/trading_bot/.github/workflows/_merge_master.yml@dev
-    with:
-      version: ${{ github.event.inputs.version }}
+#  merge_master:
+#    uses: AlphaInsider/trading_bot/.github/workflows/_merge_master.yml@dev
+#    with:
+#      version: ${{ github.event.inputs.version }}
   
   # build app
-  build_app:
-    needs: merge_master
-    uses: AlphaInsider/trading_bot/.github/workflows/_build_app.yml@dev
+#  build_app:
+#    needs: merge_master
+#    uses: AlphaInsider/trading_bot/.github/workflows/_build_app.yml@dev
   
   # build electron
-  build_electron:
-    needs: build_app
-    uses: AlphaInsider/trading_bot/.github/workflows/_build_electron.yml@dev
+#  build_electron:
+#    needs: build_app
+#    uses: AlphaInsider/trading_bot/.github/workflows/_build_electron.yml@dev
   
   # new release
   new_release:
-    needs: build_electron
+    #needs: build_electron
     runs-on: ubuntu-latest
     steps:
-      # checkout master
-      - name: Checkout master
-        uses: actions/checkout@v4
-        with:
-          ref: master
-      
       # create release
       - name: Create release
         id: create_release
@@ -46,17 +40,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          repo: master
           tag_name: v${{ github.event.inputs.version }}
           release_name: Release v${{ github.event.inputs.version }}
-          draft: true #TODO: set to false
+          draft: true
       
       # get electron artifacts
-      - name: Get electron artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: release_artifacts
-          pattern: built-electron-*
-          merge-multiple: true
+#      - name: Get electron artifacts
+#        uses: actions/download-artifact@v4
+#        with:
+#          path: release_artifacts
+#          pattern: built-electron-*
+#          merge-multiple: true
       
       #TODO: debug
       - name: Setup tmate session
