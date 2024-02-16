@@ -37,7 +37,7 @@ jobs:
   
   # new release
   new_release:
-    #needs: build_electron
+    needs: push_docker
     runs-on: ubuntu-latest
     steps:
       # create release
