@@ -1,4 +1,4 @@
-name: Build Client and Server App
+name: _build_app
 
 on:
   workflow_call:
@@ -24,15 +24,15 @@ jobs:
           path: trading_bot
       
       # verify client and server versions match
-      #- name: Verify client and server versions match
-      #  shell: bash
-      #  run: |
-      #    if ["$(jq -r '.version' ./trading_bot/package.json)" != "$(jq -r '.version' ./trading_bot_client/package.json)"]; then
-      #      echo "ERROR: Client and server versions do not match."
-      #      exit 1
-      #    else
-      #      echo "Versions match."
-      #    fi
+      - name: Verify client and server versions match
+        shell: bash
+        run: |
+          if [ "$(jq -r '.version' ./trading_bot/package.json)" != "$(jq -r '.version' ./trading_bot_client/package.json)" ]; then
+            echo "ERROR: Client and server versions do not match."
+            exit 1
+          else
+            echo "Versions match."
+          fi
       
       # build client
       - name: Build trading_bot_client

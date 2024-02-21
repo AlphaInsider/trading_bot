@@ -1,4 +1,4 @@
-name: Build Electron App
+name: _build_electron
 
 on:
   workflow_call:
@@ -16,15 +16,11 @@ jobs:
         with:
           name: built-app
       
-      #TODO: install ubuntu dependencies
-      #TODO: https://github.com/electron/forge/issues/2561
-      - name: Install Ubuntu dependencies
-        if: matrix.os == 'ubuntu-latest'
-        shell: bash
-        run: |
-          sudo apt-get install -y flatpak flatpak-builder elfutils
-          flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
-          git config --global --add protocol.file.allow always
+      # setup python
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
       
       # build electron
       - name: Build electron app
@@ -33,7 +29,7 @@ jobs:
           npm install
           npm run electron-make
       
-      #TODO: upload artifacts
+      # upload artifacts
       - name: Upload electron artifacts
         uses: actions/upload-artifact@v4
         with:
