@@ -35,8 +35,8 @@ jobs:
     with:
       version: ${{ github.event.inputs.version }}
     secrets:
-      docker_username: ${{ secrets.DOCKER_USERNAME }}
-      docker_token: ${{ secrets.DOCKER_TOKEN }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
   
 #  # new release
 #  new_release:
