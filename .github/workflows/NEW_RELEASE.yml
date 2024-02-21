@@ -64,22 +64,26 @@ jobs:
           pattern: built-electron-*
           merge-multiple: true
       
-      #TODO: debug
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true
+#      #TODO: debug
+#      - name: Setup tmate session
+#        uses: mxschmitt/action-tmate@v3
+#        with:
+#          limit-access-to-actor: true
       
-      #TODO: upload release artifacts
+      # upload release artifacts
       - name: Upload release artifacts
         shell: bash
         run: |
+          mkdir -p ./release
           find ./release_artifacts -type f -regex ".*\.\(exe\|dmg\|deb\)$" | while read FILE; do
-            echo "Uploading ${FILE}..."
+            NEW_NAME="AlphaBot-${{ github.event.inputs.version }}.${FILE##*.}"
+            NEW_PATH="./release/${NEW_NAME}"
+            mv "${FILE}" "${NEW_PATH}"
+            echo "Uploading ${NEW_NAME}..."
             curl \
               -X POST \
               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Content-Type: $(file -b --mime-type "${FILE}")" \
-              --data-binary @"${FILE}" \
-              "${{ steps.create_release.outputs.upload_url }}?name=$(basename "${FILE}")"
+              -H "Content-Type: $(file -b --mime-type "${NEW_PATH}")" \
+              --data-binary @"${NEW_PATH}" \
+              "${{ steps.create_release.outputs.upload_url }}?name=$(basename "${NEW_NAME}")"
           done
