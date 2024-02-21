@@ -23,14 +23,14 @@ jobs:
     needs: merge_master
     uses: ./.github/workflows/_build_app.yml
   
-#  # build electron
-#  build_electron:
-#    needs: build_app
-#    uses: ./.github/workflows/_build_electron.yml
+  # build electron
+  build_electron:
+    needs: build_app
+    uses: ./.github/workflows/_build_electron.yml
   
   # push docker
   push_docker:
-    needs: build_app
+    needs: build_electron
     uses: ./.github/workflows/_push_docker.yml
     with:
       version: ${{ github.event.inputs.version }}
@@ -38,48 +38,48 @@ jobs:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
   
-#  # new release
-#  new_release:
-#    needs: push_docker
-#    runs-on: ubuntu-latest
-#    steps:
-#      # create release
-#      - name: Create release
-#        id: create_release
-#        uses: softprops/action-gh-release@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          target_commitish: master
-#          tag_name: v${{ github.event.inputs.version }}
-#          name: Release v${{ github.event.inputs.version }}
-#          generate_release_notes: true
-#          draft: true
-#      
-#      # get electron artifacts
-#      - name: Get electron artifacts
-#        uses: actions/download-artifact@v4
-#        with:
-#          path: release_artifacts
-#          pattern: built-electron-*
-#          merge-multiple: true
-#      
-#      #TODO: debug
-#      - name: Setup tmate session
-#        uses: mxschmitt/action-tmate@v3
-#        with:
-#          limit-access-to-actor: true
+  # new release
+  new_release:
+    needs: push_docker
+    runs-on: ubuntu-latest
+    steps:
+      # create release
+      - name: Create release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          target_commitish: master
+          tag_name: v${{ github.event.inputs.version }}
+          name: Release v${{ github.event.inputs.version }}
+          generate_release_notes: true
+          draft: true
       
-      # upload release artifacts
-#      - name: Upload release artifacts
-#        shell: bash
-#        run: |
-#          find ./release_artifacts -type f -regex ".*\.\(exe\|dmg\|deb\)$" | while read FILE; do
-#            echo "Uploading ${FILE}..."
-#            curl \
-#              -X POST \
-#              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-#              -H "Content-Type: $(file -b --mime-type "${FILE}")" \
-#              --data-binary @"${FILE}" \
-#              "${{ steps.create_release.outputs.upload_url }}?name=$(basename "${FILE}")"
-#          done
+      # get electron artifacts
+      - name: Get electron artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release_artifacts
+          pattern: built-electron-*
+          merge-multiple: true
+      
+      #TODO: debug
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+      
+      #TODO: upload release artifacts
+      - name: Upload release artifacts
+        shell: bash
+        run: |
+          find ./release_artifacts -type f -regex ".*\.\(exe\|dmg\|deb\)$" | while read FILE; do
+            echo "Uploading ${FILE}..."
+            curl \
+              -X POST \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Content-Type: $(file -b --mime-type "${FILE}")" \
+              --data-binary @"${FILE}" \
+              "${{ steps.create_release.outputs.upload_url }}?name=$(basename "${FILE}")"
+          done
