@@ -25,8 +25,9 @@ jobs:
   # push docker
   push_docker:
     needs: test
-    uses: ./.github/workflows/_push_docker.yml@dev
+    uses: ./.github/workflows/_push_docker.yml
     with:
       version: ${{ github.event.inputs.version }}
+    secrets:
       docker_username: ${{ secrets.DOCKER_USERNAME }}
       docker_token: ${{ secrets.DOCKER_TOKEN }}
