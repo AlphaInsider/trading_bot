@@ -30,13 +30,13 @@ jobs:
 #    uses: ./.github/workflows/_build_electron.yml
   
   # push docker
-  push_docker:
-    #needs: build_app
-    uses: ./.github/workflows/_push_docker.yml
-    with:
-      version: ${{ github.event.inputs.version }}
-      docker_username: ${{ secrets.DOCKER_USERNAME }}
-      docker_token: ${{ secrets.DOCKER_TOKEN }}
+#  push_docker:
+#    #needs: build_app
+#    uses: ./.github/workflows/_push_docker.yml
+#    with:
+#      version: ${{ github.event.inputs.version }}
+#      docker_username: ${{ secrets.DOCKER_USERNAME }}
+#      docker_token: ${{ secrets.DOCKER_TOKEN }}
   
 #  # new release
 #  new_release:
