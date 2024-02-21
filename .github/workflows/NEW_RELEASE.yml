@@ -43,6 +43,31 @@ jobs:
     needs: push_docker
     runs-on: ubuntu-latest
     steps:
+      # get electron artifacts
+      - name: Get electron artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release_artifacts
+          pattern: built-electron-*
+          merge-multiple: true
+      
+      # rename artifacts for release
+      - name: Rename artifacts for release
+        shell: bash
+        run: |
+          mkdir -p ./release
+          find ./release_artifacts -type f -regex ".*\.\(exe\|dmg\|deb\)$" | while read FILE; do
+            NEW_NAME="AlphaBot-${{ github.event.inputs.version }}.${FILE##*.}"
+            NEW_PATH="./release/${NEW_NAME}"
+            mv "${FILE}" "${NEW_PATH}"
+          done
+      
+      #      #TODO: debug
+      #      - name: Setup tmate session
+      #        uses: mxschmitt/action-tmate@v3
+      #        with:
+      #          limit-access-to-actor: true
+      
       # create release
       - name: Create release
         id: create_release
@@ -55,35 +80,4 @@ jobs:
           name: Release v${{ github.event.inputs.version }}
           generate_release_notes: true
           draft: true
-      
-      # get electron artifacts
-      - name: Get electron artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: release_artifacts
-          pattern: built-electron-*
-          merge-multiple: true
-      
-#      #TODO: debug
-#      - name: Setup tmate session
-#        uses: mxschmitt/action-tmate@v3
-#        with:
-#          limit-access-to-actor: true
-      
-      # upload release artifacts
-      - name: Upload release artifacts
-        shell: bash
-        run: |
-          mkdir -p ./release
-          find ./release_artifacts -type f -regex ".*\.\(exe\|dmg\|deb\)$" | while read FILE; do
-            NEW_NAME="AlphaBot-${{ github.event.inputs.version }}.${FILE##*.}"
-            NEW_PATH="./release/${NEW_NAME}"
-            mv "${FILE}" "${NEW_PATH}"
-            echo "Uploading ${NEW_NAME}..."
-            curl \
-              -X POST \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Content-Type: $(file -b --mime-type "${NEW_PATH}")" \
-              --data-binary @"${NEW_PATH}" \
-              "${{ steps.create_release.outputs.upload_url }}"
-          done
+          files: ./release/*
