@@ -43,7 +43,10 @@ module.exports = {
     {
       name: '@electron-forge/maker-deb',
       config: {
-        options: {}
+        options: {
+          productName: 'AlphaBot',
+          icon: path.resolve(__dirname, './public/electron/desktop_icon.png')
+        }
       }
     }
   ],
