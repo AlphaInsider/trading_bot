@@ -12,31 +12,31 @@ permissions:
   contents: write
 
 jobs:
-    
-#  # merge master
-#  merge_master:
-#    uses: ./.github/workflows/_merge_master.yml
-#    with:
-#      version: ${{ github.event.inputs.version }}
-#  
-#  # build app
-#  build_app:
-#    needs: merge_master
-#    uses: ./.github/workflows/_build_app.yml
+  # merge master
+  merge_master:
+    uses: ./.github/workflows/_merge_master.yml
+    with:
+      version: ${{ github.event.inputs.version }}
   
-  # build electron
+  # build app
+  build_app:
+    needs: merge_master
+    uses: ./.github/workflows/_build_app.yml
+  
+#  # build electron
 #  build_electron:
 #    needs: build_app
 #    uses: ./.github/workflows/_build_electron.yml
   
   # push docker
-#  push_docker:
-#    #needs: build_app
-#    uses: ./.github/workflows/_push_docker.yml
-#    with:
-#      version: ${{ github.event.inputs.version }}
-#      docker_username: ${{ secrets.DOCKER_USERNAME }}
-#      docker_token: ${{ secrets.DOCKER_TOKEN }}
+  push_docker:
+    needs: build_app
+    uses: ./.github/workflows/_push_docker.yml
+    with:
+      version: ${{ github.event.inputs.version }}
+    secrets:
+      docker_username: ${{ secrets.DOCKER_USERNAME }}
+      docker_token: ${{ secrets.DOCKER_TOKEN }}
   
 #  # new release
 #  new_release:
