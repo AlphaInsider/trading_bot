@@ -1,0 +1,22 @@
+name: TEST
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        required: true
+        description: 'Version Number (eg: 0.0.0)'
+
+permissions:
+  contents: write
+
+jobs:
+  # test
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: test
+        shell: bash
+        run: |
+          echo "Github TEST secret: ${{ secrets.TEST }}"
