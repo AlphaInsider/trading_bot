@@ -34,6 +34,8 @@ jobs:
     uses: ./.github/workflows/_push_docker.yml
     with:
       version: ${{ github.event.inputs.version }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
   
   # new release
   new_release:
