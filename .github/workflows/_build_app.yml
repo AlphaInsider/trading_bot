@@ -23,17 +23,11 @@ jobs:
           ref: master
           path: trading_bot
       
-      #TODO: debug
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true
-      
       # verify client and server versions match
       - name: Verify client and server versions match
         shell: bash
         run: |
-          if ["$(jq -r '.version' ./trading_bot/package.json)" != "$(jq -r '.version' ./trading_bot_client/package.json)"]; then
+          if [ "$(jq -r '.version' ./trading_bot/package.json)" != "$(jq -r '.version' ./trading_bot_client/package.json)" ]; then
             echo "ERROR: Client and server versions do not match."
             exit 1
           else
