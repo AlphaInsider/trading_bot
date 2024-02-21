@@ -4,11 +4,33 @@ on:
   workflow_call:
 
 jobs:
-  build_electron:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+  # build windows
+  build_windows:
+    runs-on: windows-latest
+    steps:
+      # get app artifacts
+      - name: Get app artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: built-app
+      
+      # build electron
+      - name: Build electron app
+        shell: bash
+        run: |
+          npm install
+          npm run electron-make
+      
+      # upload artifacts
+      - name: Upload electron artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-electron-windows
+          path: ./out/make/**/*.exe
+  
+  # build macos
+  build_macos:
+    runs-on: macos-latest
     steps:
       # get app artifacts
       - name: Get app artifacts
@@ -33,5 +55,29 @@ jobs:
       - name: Upload electron artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: built-electron-${{ matrix.os }}
-          path: ./out/make
+          name: built-electron-macos
+          path: ./out/make/**/*.dmg
+  
+  # build linux
+  build_linux:
+    runs-on: ubuntu-latest
+    steps:
+      # get app artifacts
+      - name: Get app artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: built-app
+      
+      # build electron
+      - name: Build electron app
+        shell: bash
+        run: |
+          npm install
+          npm run electron-make
+      
+      # upload artifacts
+      - name: Upload electron artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-electron-linux
+          path: ./out/make/**/*.deb
