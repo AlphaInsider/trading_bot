@@ -39,45 +39,45 @@ jobs:
 #    uses: ./.github/workflows/_build_electron.yml
   
   # push docker
-  push_docker:
-    #needs: build_app
-    uses: ./.github/workflows/_push_docker.yml
-    with:
-      version: ${{ github.event.inputs.version }}
-      docker-username: ${{ secrets.DOCKER_USERNAME }}
-      docker-token: ${{ secrets.DOCKER_TOKEN }}
+#  push_docker:
+#    #needs: build_app
+#    uses: ./.github/workflows/_push_docker.yml
+#    with:
+#      version: ${{ github.event.inputs.version }}
+#      docker-username: ${{ secrets.DOCKER_USERNAME }}
+#      docker-token: ${{ secrets.DOCKER_TOKEN }}
   
-  # new release
-  new_release:
-    needs: push_docker
-    runs-on: ubuntu-latest
-    steps:
-      # create release
-      - name: Create release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          target_commitish: master
-          tag_name: v${{ github.event.inputs.version }}
-          name: Release v${{ github.event.inputs.version }}
-          generate_release_notes: true
-          draft: true
-      
-      # get electron artifacts
-      - name: Get electron artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: release_artifacts
-          pattern: built-electron-*
-          merge-multiple: true
-      
-      #TODO: debug
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true
+#  # new release
+#  new_release:
+#    needs: push_docker
+#    runs-on: ubuntu-latest
+#    steps:
+#      # create release
+#      - name: Create release
+#        id: create_release
+#        uses: softprops/action-gh-release@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          target_commitish: master
+#          tag_name: v${{ github.event.inputs.version }}
+#          name: Release v${{ github.event.inputs.version }}
+#          generate_release_notes: true
+#          draft: true
+#      
+#      # get electron artifacts
+#      - name: Get electron artifacts
+#        uses: actions/download-artifact@v4
+#        with:
+#          path: release_artifacts
+#          pattern: built-electron-*
+#          merge-multiple: true
+#      
+#      #TODO: debug
+#      - name: Setup tmate session
+#        uses: mxschmitt/action-tmate@v3
+#        with:
+#          limit-access-to-actor: true
       
       # upload release artifacts
 #      - name: Upload release artifacts
