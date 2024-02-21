@@ -20,13 +20,6 @@ jobs:
           name: built-app
           path: app
       
-      #TODO: remove
-      - name: check secrets
-        shell: bash
-        run: |
-          DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}"
-          DOCKER_TOKEN="${{ secrets.DOCKER_TOKEN }}"
-      
       #TODO: debug
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
