@@ -7,11 +7,10 @@ on:
         type: string
         required: true
         description: 'Version Number (eg: 0.0.0)'
+    secrets:
       docker_username:
-        type: 'string'
         required: true
       docker_token:
-        type: 'string'
         required: true
 
 jobs:
