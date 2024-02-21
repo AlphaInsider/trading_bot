@@ -8,9 +8,9 @@ on:
         required: true
         description: 'Version Number (eg: 0.0.0)'
     secrets:
-      docker_username:
+      DOCKER_USERNAME:
         required: true
-      docker_token:
+      DOCKER_TOKEN:
         required: true
 
 jobs:
@@ -29,14 +29,14 @@ jobs:
       - name: test
         shell: bash
         run: |
-          echo "Docker username test secret: ${{ github.event.inputs.docker_username }}"
+          echo "Docker username test secret: ${{ secrets.DOCKER_USERNAME }}"
       
       # login to docker hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ github.event.inputs.docker_username }}
-          password: ${{ github.event.inputs.docker_token }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
       
       # build and push docker image
       #TODO: add latest (alphainsider/trading_bot:latest)
