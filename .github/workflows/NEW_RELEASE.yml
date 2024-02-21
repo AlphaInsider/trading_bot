@@ -85,5 +85,5 @@ jobs:
               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               -H "Content-Type: $(file -b --mime-type "${NEW_PATH}")" \
               --data-binary @"${NEW_PATH}" \
-              "${{ steps.create_release.outputs.upload_url }}?name=$(basename "${NEW_NAME}")"
+              "${{ steps.create_release.outputs.upload_url }}"
           done
