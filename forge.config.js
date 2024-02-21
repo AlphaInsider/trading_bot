@@ -26,7 +26,7 @@ module.exports = {
     {
       name: '@electron-forge/maker-squirrel',
       config: {
-        //loadingGif: '',
+        loadingGif: path.resolve(__dirname, './public/electron/loading.gif'),
         iconUrl: path.resolve(__dirname, './public/electron/desktop_icon.ico'),
         setupIcon: path.resolve(__dirname, './public/electron/desktop_icon.ico')
       }
