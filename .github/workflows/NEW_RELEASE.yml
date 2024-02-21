@@ -51,6 +51,12 @@ jobs:
           pattern: built-electron-*
           merge-multiple: true
       
+      #TODO: debug
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+      
       # rename artifacts for release
       - name: Rename artifacts for release
         shell: bash
