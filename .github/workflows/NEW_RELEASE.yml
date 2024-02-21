@@ -12,16 +12,26 @@ permissions:
   contents: write
 
 jobs:
-  # merge master
-  merge_master:
-    uses: ./.github/workflows/_merge_master.yml
-    with:
-      version: ${{ github.event.inputs.version }}
-  
-  # build app
-  build_app:
-    needs: merge_master
-    uses: ./.github/workflows/_build_app.yml
+  #TODO: remove
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # test
+      - name: test
+        shell: bash
+        run: |
+          echo "Github TEST secret: ${{ secrets.DOCKER_USERNAME }}"
+    
+#  # merge master
+#  merge_master:
+#    uses: ./.github/workflows/_merge_master.yml
+#    with:
+#      version: ${{ github.event.inputs.version }}
+#  
+#  # build app
+#  build_app:
+#    needs: merge_master
+#    uses: ./.github/workflows/_build_app.yml
   
   # build electron
 #  build_electron:
@@ -30,7 +40,7 @@ jobs:
   
   # push docker
   push_docker:
-    needs: build_app
+    #needs: build_app
     uses: ./.github/workflows/_push_docker.yml
     with:
       version: ${{ github.event.inputs.version }}
