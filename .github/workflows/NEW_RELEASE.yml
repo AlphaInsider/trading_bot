@@ -12,15 +12,6 @@ permissions:
   contents: write
 
 jobs:
-  #TODO: remove
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      # test
-      - name: test
-        shell: bash
-        run: |
-          echo "Github TEST secret: ${{ secrets.DOCKER_USERNAME }}"
     
 #  # merge master
 #  merge_master:
@@ -39,13 +30,13 @@ jobs:
 #    uses: ./.github/workflows/_build_electron.yml
   
   # push docker
-#  push_docker:
-#    #needs: build_app
-#    uses: ./.github/workflows/_push_docker.yml
-#    with:
-#      version: ${{ github.event.inputs.version }}
-#      docker-username: ${{ secrets.DOCKER_USERNAME }}
-#      docker-token: ${{ secrets.DOCKER_TOKEN }}
+  push_docker:
+    #needs: build_app
+    uses: ./.github/workflows/_push_docker.yml
+    with:
+      version: ${{ github.event.inputs.version }}
+      docker_username: ${{ secrets.DOCKER_USERNAME }}
+      docker_token: ${{ secrets.DOCKER_TOKEN }}
   
 #  # new release
 #  new_release:
