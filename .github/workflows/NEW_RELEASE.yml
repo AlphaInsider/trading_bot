@@ -28,19 +28,19 @@ jobs:
     needs: build_app
     uses: ./.github/workflows/_build_electron.yml
   
-  # push docker
-  push_docker:
-    needs: build_electron
-    uses: ./.github/workflows/_push_docker.yml
-    with:
-      version: ${{ github.event.inputs.version }}
-    secrets:
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+#  # push docker
+#  push_docker:
+#    needs: build_electron
+#    uses: ./.github/workflows/_push_docker.yml
+#    with:
+#      version: ${{ github.event.inputs.version }}
+#    secrets:
+#      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+#      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
   
   # new release
   new_release:
-    needs: push_docker
+    needs: build_electron #TODO: revert
     runs-on: ubuntu-latest
     steps:
       # get electron artifacts
