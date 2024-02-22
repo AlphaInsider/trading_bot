@@ -2,6 +2,13 @@ name: _build_electron
 
 on:
   workflow_call:
+    secrets:
+      SIGNING_CERT_WINDOWS:
+        required: true
+      SIGNING_CERT_MACOS:
+        required: true
+      SIGNING_PASS:
+        required: true
 
 jobs:
   # build windows
