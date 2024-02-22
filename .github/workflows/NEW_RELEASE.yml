@@ -27,6 +27,10 @@ jobs:
   build_electron:
     needs: build_app
     uses: ./.github/workflows/_build_electron.yml
+    secrets:
+      SIGNING_CERT_WINDOWS: ${{ secrets.SIGNING_CERT_WINDOWS }}
+      SIGNING_CERT_MACOS: ${{ secrets.SIGNING_CERT_MACOS }}
+      SIGNING_PASS: ${{ secrets.SIGNING_PASS }}
   
 #  # push docker
 #  push_docker:

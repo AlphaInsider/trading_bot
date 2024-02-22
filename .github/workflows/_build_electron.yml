@@ -2,6 +2,13 @@ name: _build_electron
 
 on:
   workflow_call:
+    secrets:
+      SIGNING_CERT_WINDOWS:
+        required: true
+      SIGNING_CERT_MACOS:
+        required: true
+      SIGNING_PASS:
+        required: true
 
 jobs:
   # build windows
@@ -14,19 +21,48 @@ jobs:
         with:
           name: built-app
       
+      # decode PFX file
+      - name: Decode PFX file
+        shell: bash
+        run: |
+          temp_dir=$(mktemp -d)
+          echo "${{ secrets.SIGNING_CERT_WINDOWS }}" | base64 --decode > "$temp_dir/cert.pfx"
+          echo "SIGNING_CERT_WINDOWS_PFX=$temp_dir/cert.pfx" >> $GITHUB_ENV
+      
+      #TODO: debug
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+      
       # build electron
       - name: Build electron app
         shell: bash
         run: |
           npm install
           npm run electron-make
+        env:
+          SIGNING_PASS: ${{ secrets.SIGNING_PASS }}
+      
+      #TODO: debug
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+      
+      # verify signature
+      - name: Verify signature
+        shell: pwsh
+        run: |
+          $exePath = Get-ChildItem .\out\make\ -Recurse -Filter *.exe | Select-Object -First 1 -ExpandProperty FullName
+          signtool verify /pa /v "$exePath"
       
       # upload artifacts
       - name: Upload electron artifacts
         uses: actions/upload-artifact@v4
         with:
           name: built-electron-windows
-          path: ./out/make/**/*.exe
+          path: ./out/make
   
   # build macos
   build_macos:
@@ -56,7 +92,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: built-electron-macos
-          path: ./out/make/**/*.dmg
+          path: ./out/make
   
   # build linux
   build_linux:
@@ -80,4 +116,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: built-electron-linux
-          path: ./out/make/**/*.deb
+          path: ./out/make
