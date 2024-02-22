@@ -84,11 +84,12 @@ jobs:
           npm install
           npm run electron-make
       
-      #TODO: test
-      - name: test
-        shell: bash
-        run: |
-          echo "${{ secrets.SIGNING_CERT_MACOS }}" | base64 --decode > certificate.p12
+      # install macOS certificate
+      - name: Install macOS certificate
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          p12-file-base64: ${{ secrets.SIGNING_CERT_MACOS }}
+          p12-password: ${{ secrets.SIGNING_PASS }}
       
       #TODO: debug
       - name: Setup tmate session
