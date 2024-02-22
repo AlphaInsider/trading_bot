@@ -111,8 +111,9 @@ jobs:
       - name: Sign electron app
         shell: bash
         run: |
+          $certName = "Developer ID Application: Alpha Insider Inc. (7WMUCJHPUL)"
           $dmgPath =
-          codesign --deep --force --verbose --sign "YourCertificateName" $dmgPath
+          codesign --deep --force --verbose --sign $certName $dmgPath
       
       #TODO: debug
       - name: Setup tmate session
