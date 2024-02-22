@@ -4,6 +4,7 @@ const path = require('path');
 module.exports = {
   packagerConfig: {
     name: 'AlphaBot',
+    appBundleId: 'com.alphainsider.alphabot',
     executableName: 'alpha_bot',
     icon: path.resolve(__dirname, './public/electron/desktop_icon'),
     ignore: (() => {
@@ -28,11 +29,7 @@ module.exports = {
       config: {
         loadingGif: path.resolve(__dirname, './public/electron/loading.gif'),
         iconUrl: path.resolve(__dirname, './public/electron/desktop_icon.ico'),
-        setupIcon: path.resolve(__dirname, './public/electron/desktop_icon.ico'),
-        ...((process.env.SIGNING_CERT_WINDOWS_PFX && process.env.SIGNING_PASS) ? {
-          certificateFile: process.env.SIGNING_CERT_WINDOWS_PFX,
-          certificatePassword: process.env.SIGNING_PASS
-        } : {})
+        setupIcon: path.resolve(__dirname, './public/electron/desktop_icon.ico')
       }
     },
     // macOS
