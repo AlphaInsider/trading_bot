@@ -11,65 +11,55 @@ on:
         required: true
 
 jobs:
-  # build windows
-  build_windows:
-    runs-on: windows-latest
-    steps:
-      # get app artifacts
-      - name: Get app artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: built-app
-      
-      # build electron
-      - name: Build electron app
-        shell: bash
-        run: |
-          npm install
-          npm run electron-make
-      
-      #TODO: debug
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true
-      
-      # sign electron app
-      - name: Sign electron app
-        shell: pwsh
-        run: |
-          # Path to most recent signtool
-          $signtool = Get-ChildItem "C:/Program Files (x86)/Windows Kits/10/bin/*" -Recurse -Filter signtool.exe | 
-                      Sort-Object -Property Directory -Descending | 
-                      Select-Object -First 1 -ExpandProperty FullName
-          
-          # Decode the PFX from Base64 and write to a file
-          $pfxContent = [System.Convert]::FromBase64String('${{ secrets.SIGNING_CERT_WINDOWS }}')
-          $pfxPath = "signingCert.pfx"
-          [System.IO.File]::WriteAllBytes($pfxPath, $pfxContent)
-          
-          # Find the executable path
-          $exePath = Get-ChildItem .\out\make\ -Recurse -Filter *.exe | Select-Object -First 1 -ExpandProperty FullName
-          
-          # Sign the executable
-          $pfxPassword = "${{ secrets.SIGNING_PASS }}"
-          & $signtool sign /f $pfxPath /p $pfxPassword /tr http://timestamp.digicert.com /td sha256 /fd sha256 "$exePath"
-          
-          # Verify executable is signed
-          & $signtool verify /pa /v "$exePath"
-      
-      #TODO: debug
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true
-      
-      # upload artifacts
-      - name: Upload electron artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: built-electron-windows
-          path: ./out/make
+#  # build windows
+#  build_windows:
+#    runs-on: windows-latest
+#    steps:
+#      # get app artifacts
+#      - name: Get app artifacts
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: built-app
+#      
+#      # build electron
+#      - name: Build electron app
+#        shell: bash
+#        run: |
+#          npm install
+#          npm run electron-make
+#      
+#      #TODO: sign electron app
+#      - name: Sign electron app
+#        shell: pwsh
+#        env:
+#          SIGNING_CERT_WINDOWS: ${{ secrets.SIGNING_CERT_WINDOWS }}
+#          SIGNING_PASS: ${{ secrets.SIGNING_PASS }}
+#        run: |
+#          # Path to most recent signtool
+#          $signtool = Get-ChildItem "C:/Program Files (x86)/Windows Kits/10/bin/*" -Recurse -Filter signtool.exe | 
+#                      Sort-Object -Property Directory -Descending | 
+#                      Select-Object -First 1 -ExpandProperty FullName
+#          
+#          # Decode the PFX from Base64
+#          $pfxContent = [System.Convert]::FromBase64String($env:SIGNING_CERT_WINDOWS)
+#          $pfxPath = "signingCert.pfx"
+#          [System.IO.File]::WriteAllBytes($pfxPath, $pfxContent)
+#          
+#          # Find the executable path
+#          $exePath = Get-ChildItem .\out\make\ -Recurse -Filter *.exe | Select-Object -First 1 -ExpandProperty FullName
+#          
+#          # Sign the executable
+#          & $signtool sign /f $pfxPath /p $env:SIGNING_PASS /tr http://timestamp.digicert.com /td sha256 /fd sha256 "$exePath"
+#          
+#          # Verify executable is signed
+#          & $signtool verify /pa /v "$exePath"
+#      
+#      # upload artifacts
+#      - name: Upload electron artifacts
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: built-electron-windows
+#          path: ./out/make
   
   # build macos
   build_macos:
@@ -93,6 +83,43 @@ jobs:
         run: |
           npm install
           npm run electron-make
+      
+      #TODO: test
+      - name: test
+        shell: bash
+        run: |
+          echo "${{ secrets.SIGNING_CERT_MACOS }}" | base64 --decode > certificate.p12
+      
+      #TODO: debug
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+      
+      # install macOS certificate
+      - name: Install macOS certificate
+        shell: bash
+        run: |
+          echo "${{ secrets.SIGNING_CERT_MACOS }}" | base64 --decode > certificate.p12
+          sudo security create-keychain -p "" build.keychain
+          sudo security default-keychain -s build.keychain
+          sudo security unlock-keychain -p "" build.keychain
+          sudo security import certificate.p12 -k build.keychain -P ${{ secrets.SIGNING_PASS }} -T /usr/bin/codesign
+          sudo security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+      
+      # sign electron app
+      - name: Sign electron app
+        shell: bash
+        run: |
+          $certName = "Developer ID Application: Alpha Insider Inc. (7WMUCJHPUL)"
+          $dmgPath =
+          codesign --deep --force --verbose --sign $certName $dmgPath
+      
+      #TODO: debug
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
       
       # upload artifacts
       - name: Upload electron artifacts
