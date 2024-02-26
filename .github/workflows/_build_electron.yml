@@ -3,11 +3,19 @@ name: _build_electron
 on:
   workflow_call:
     secrets:
-      SIGNING_CERT_WINDOWS:
+      SIGNING_WINDOWS_CERT_KEY:
         required: true
-      SIGNING_CERT_MACOS:
+      SIGNING_WINDOWS_CERT_PASS:
         required: true
-      SIGNING_PASS:
+      SIGNING_MACOS_CERT_KEY:
+        required: true
+      SIGNING_MACOS_CERT_PASS:
+        required: true
+      SIGNING_MACOS_NOTARY_KEY:
+        required: true
+      SIGNING_MACOS_NOTARY_ID:
+        required: true
+      SIGNING_MACOS_NOTARY_ISSUER:
         required: true
 
 jobs:
@@ -32,8 +40,8 @@ jobs:
 #      - name: Sign electron app
 #        shell: pwsh
 #        env:
-#          SIGNING_CERT_WINDOWS: ${{ secrets.SIGNING_CERT_WINDOWS }}
-#          SIGNING_PASS: ${{ secrets.SIGNING_PASS }}
+#          SIGNING_WINDOWS_CERT_KEY: ${{ secrets.SIGNING_WINDOWS_CERT_KEY }}
+#          SIGNING_WINDOWS_CERT_PASS: ${{ secrets.SIGNING_WINDOWS_CERT_PASS }}
 #        run: |
 #          # Path to most recent signtool
 #          $signtool = Get-ChildItem "C:/Program Files (x86)/Windows Kits/10/bin/*" -Recurse -Filter signtool.exe | 
@@ -41,7 +49,7 @@ jobs:
 #                      Select-Object -First 1 -ExpandProperty FullName
 #          
 #          # Decode the PFX from Base64
-#          $pfxContent = [System.Convert]::FromBase64String($env:SIGNING_CERT_WINDOWS)
+#          $pfxContent = [System.Convert]::FromBase64String($env:SIGNING_WINDOWS_CERT_KEY)
 #          $pfxPath = "signingCert.pfx"
 #          [System.IO.File]::WriteAllBytes($pfxPath, $pfxContent)
 #          
@@ -49,7 +57,7 @@ jobs:
 #          $exePath = Get-ChildItem .\out\make\ -Recurse -Filter *.exe | Select-Object -First 1 -ExpandProperty FullName
 #          
 #          # Sign the executable
-#          & $signtool sign /f $pfxPath /p $env:SIGNING_PASS /tr http://timestamp.digicert.com /td sha256 /fd sha256 "$exePath"
+#          & $signtool sign /f $pfxPath /p $env:SIGNING_WINDOWS_CERT_PASS /tr http://timestamp.digicert.com /td sha256 /fd sha256 "$exePath"
 #          
 #          # Verify executable is signed
 #          & $signtool verify /pa /v "$exePath"
@@ -81,17 +89,17 @@ jobs:
       - name: Set macOS certificate
         uses: apple-actions/import-codesign-certs@v2
         with:
-          p12-file-base64: ${{ secrets.SIGNING_CERT_MACOS }}
-          p12-password: ${{ secrets.SIGNING_PASS }}
+          p12-file-base64: ${{ secrets.SIGNING_MACOS_CERT_KEY }}
+          p12-password: ${{ secrets.SIGNING_MACOS_CERT_PASS }}
       
-      # get certificate ID
-      - name: Get certificate ID
+      # set notary keys
+      - name: Set notary keys
         shell: bash
         run: |
-          CERT_ID=$(security find-identity -p codesigning -v | awk -F'"' '{print $2}')
-          echo $CERT_ID
-          ! echo "$CERT_ID" | grep -q "Alpha" && exit 1
-          echo "CERT_ID=${CERT_ID}" >> $GITHUB_ENV
+          mkdir -p ~/private_keys/
+          echo "${{ secrets.SIGNING_MACOS_NOTARY_KEY }}" > ~/private_keys/notary_key.p8
+          echo "SIGNING_MACOS_NOTARY_ID=${{ secrets.SIGNING_MACOS_NOTARY_ID }}" >> $GITHUB_ENV
+          echo "SIGNING_MACOS_NOTARY_ISSUER=${{ secrets.SIGNING_MACOS_NOTARY_ISSUER }}" >> $GITHUB_ENV
       
       #TODO: debug
       - name: Setup tmate session
@@ -105,21 +113,6 @@ jobs:
         run: |
           npm install
           npm run electron-make
-      
-      #TODO: debug
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true
-      
-      # sign electron app
-      - name: Sign electron app
-        shell: bash
-        run: |
-          certName="Developer ID Application: Alpha Insider Inc. (7WMUCJHPUL)"
-          dmgPath=$(find ./out/make -type f -name "*.dmg")
-          codesign --force --verbose --sign "$certName" "$dmgPath"
-          codesign --verify "$dmgPath"
       
       #TODO: debug
       - name: Setup tmate session
