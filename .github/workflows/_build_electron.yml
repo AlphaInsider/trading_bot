@@ -86,6 +86,7 @@ jobs:
       
       # get certificate ID
       - name: Get certificate ID
+        shell: bash
         run: |
           CERT_ID=$(security find-identity -p basic -v | awk -F'"' '{print $2}')
           echo "CERT_ID=${CERT_ID}" >> $GITHUB_ENV
