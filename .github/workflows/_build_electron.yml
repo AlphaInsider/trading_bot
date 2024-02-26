@@ -79,15 +79,18 @@ jobs:
       
       # set macOS certificate
       - name: Set macOS certificate
-        id: set_cert
         uses: apple-actions/import-codesign-certs@v2
         with:
           p12-file-base64: ${{ secrets.SIGNING_CERT_MACOS }}
           p12-password: ${{ secrets.SIGNING_PASS }}
       
-      #TODO: remove
-      - name: Set Security Response as Env Var
-        run: echo "CERT_RESPONSE=${{ steps.set_cert.outputs.security-response }}" >> $GITHUB_ENV
+      # get certificate ID
+      - name: Get certificate ID
+        run: |
+          CERT_ID=$(security find-identity -p basic -v | awk -F'"' '{print $2}')
+          echo "CERT_ID=${CERT_ID}" >> $GITHUB_ENV
+          echo $CERT_ID
+          ! echo "$CERT_ID" | grep -q "Alpha" && exit 1
       
       #TODO: debug
       - name: Setup tmate session
@@ -101,8 +104,6 @@ jobs:
         run: |
           npm install
           npm run electron-make
-        env:
-          CERT_RESPONSE: ${{ steps.set_cert.outputs.security-response }}
       
       #TODO: debug
       - name: Setup tmate session

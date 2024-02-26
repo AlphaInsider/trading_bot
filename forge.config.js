@@ -37,9 +37,9 @@ module.exports = {
       config: {
         icon: path.resolve(__dirname, './public/electron/desktop_icon.icns'),
         format: 'ULFO',
-        ...((process.env['CERT_RESPONSE']) ? {
+        ...((process.env['CERT_ID']) ? {
           'code-sign': {
-            'signing-identity': 'Developer ID Application: Alpha Insider Inc. (7WMUCJHPUL)'
+            'signing-identity': process.env['CERT_ID']
           }
         } : {})
       }
