@@ -4,6 +4,7 @@ const path = require('path');
 module.exports = {
   packagerConfig: {
     name: 'AlphaBot',
+    appBundleId: 'com.alphainsider.alphabot',
     executableName: 'alpha_bot',
     icon: path.resolve(__dirname, './public/electron/desktop_icon'),
     ignore: (() => {
