@@ -88,7 +88,7 @@ jobs:
       - name: Get certificate ID
         shell: bash
         run: |
-          CERT_ID=$(security find-identity -p basic -v | awk -F'"' '{print $2}')
+          CERT_ID=$(security find-identity -p codesigning -v | awk -F'"' '{print $2}')
           echo $CERT_ID
           ! echo "$CERT_ID" | grep -q "Alpha" && exit 1
           echo "CERT_ID=${CERT_ID}" >> $GITHUB_ENV

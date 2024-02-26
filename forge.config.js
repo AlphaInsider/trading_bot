@@ -7,6 +7,13 @@ module.exports = {
     appBundleId: 'com.alphainsider.alphabot',
     executableName: 'alpha_bot',
     icon: path.resolve(__dirname, './public/electron/desktop_icon'),
+    osxSign: {},
+    osxNotarize: {
+      tool: 'notarytool',
+      appleApiKey: '',
+      appleApiKeyId: '',
+      appleApiIssuer: ''
+    },
     ignore: (() => {
       let allowList = [
         'node_modules/',
@@ -37,12 +44,7 @@ module.exports = {
       name: '@electron-forge/maker-dmg',
       config: {
         icon: path.resolve(__dirname, './public/electron/desktop_icon.icns'),
-        format: 'ULFO',
-        ...((process.env['CERT_ID']) ? {
-          'code-sign': {
-            'signing-identity': process.env['CERT_ID']
-          }
-        } : {})
+        format: 'ULFO'
       }
     },
     // linux
