@@ -97,7 +97,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p ~/private_keys/
-          echo "${{ secrets.SIGNING_MACOS_NOTARY_KEY }}" > ~/private_keys/notary_key.p8
+          echo "${{ secrets.SIGNING_MACOS_NOTARY_KEY }}" | base64 -d > ~/private_keys/notary_key.p8
           echo "SIGNING_MACOS_NOTARY_ID=${{ secrets.SIGNING_MACOS_NOTARY_ID }}" >> $GITHUB_ENV
           echo "SIGNING_MACOS_NOTARY_ISSUER=${{ secrets.SIGNING_MACOS_NOTARY_ISSUER }}" >> $GITHUB_ENV
       
