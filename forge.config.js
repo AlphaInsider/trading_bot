@@ -10,7 +10,7 @@ module.exports = {
     osxSign: {},
     osxNotarize: {
       tool: 'notarytool',
-      appleApiKey: '~/private_keys/notary_key.p8',
+      appleApiKey: path.resolve(__dirname, '~/private_keys/notary_key.p8'),
       appleApiKeyId: process.env['SIGNING_MACOS_NOTARY_ID'],
       appleApiIssuer: process.env['SIGNING_MACOS_NOTARY_ISSUER']
     },
