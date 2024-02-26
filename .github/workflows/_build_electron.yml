@@ -77,19 +77,17 @@ jobs:
         with:
           python-version: '3.11'
       
-      # build electron
-      - name: Build electron app
-        shell: bash
-        run: |
-          npm install
-          npm run electron-make
-      
-      # install macOS certificate
-      - name: Install macOS certificate
+      # set macOS certificate
+      - name: Set macOS certificate
+        id: set_cert
         uses: apple-actions/import-codesign-certs@v2
         with:
           p12-file-base64: ${{ secrets.SIGNING_CERT_MACOS }}
           p12-password: ${{ secrets.SIGNING_PASS }}
+      
+      #TODO: remove
+      - name: Set Security Response as Env Var
+        run: echo "CERT_RESPONSE=${{ steps.set_cert.outputs.security-response }}" >> $GITHUB_ENV
       
       #TODO: debug
       - name: Setup tmate session
@@ -97,24 +95,29 @@ jobs:
         with:
           limit-access-to-actor: true
       
-      # install macOS certificate
-      - name: Install macOS certificate
+      # build electron
+      - name: Build electron app
         shell: bash
         run: |
-          echo "${{ secrets.SIGNING_CERT_MACOS }}" | base64 --decode > certificate.p12
-          sudo security create-keychain -p "" build.keychain
-          sudo security default-keychain -s build.keychain
-          sudo security unlock-keychain -p "" build.keychain
-          sudo security import certificate.p12 -k build.keychain -P ${{ secrets.SIGNING_PASS }} -T /usr/bin/codesign
-          sudo security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+          npm install
+          npm run electron-make
+        env:
+          CERT_RESPONSE: ${{ steps.set_cert.outputs.security-response }}
+      
+      #TODO: debug
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
       
       # sign electron app
       - name: Sign electron app
         shell: bash
         run: |
-          $certName = "Developer ID Application: Alpha Insider Inc. (7WMUCJHPUL)"
-          $dmgPath =
-          codesign --deep --force --verbose --sign $certName $dmgPath
+          certName="Developer ID Application: Alpha Insider Inc. (7WMUCJHPUL)"
+          dmgPath=$(find ./out/make -type f -name "*.dmg")
+          codesign --force --verbose --sign "$certName" "$dmgPath"
+          codesign --verify "$dmgPath"
       
       #TODO: debug
       - name: Setup tmate session
