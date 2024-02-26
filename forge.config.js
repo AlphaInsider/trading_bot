@@ -36,7 +36,12 @@ module.exports = {
       name: '@electron-forge/maker-dmg',
       config: {
         icon: path.resolve(__dirname, './public/electron/desktop_icon.icns'),
-        format: 'ULFO'
+        format: 'ULFO',
+        ...((process.env['CERT_RESPONSE']) ? {
+          'code-sign': {
+            'signing-identity': 'Developer ID Application: Alpha Insider Inc. (7WMUCJHPUL)'
+          }
+        } : {})
       }
     },
     // linux
