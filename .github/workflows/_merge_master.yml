@@ -12,15 +12,6 @@ jobs:
   merge_master:
     runs-on: ubuntu-latest
     steps:
-      # verify version format
-      - name: Verify version format
-        shell: bash
-        run: |
-          if ! [[ "${{ github.event.inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Error: Invalid version format."
-            exit 1
-          fi
-      
       # checkout dev
       - name: Checkout dev
         uses: actions/checkout@v4
