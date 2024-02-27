@@ -17,6 +17,11 @@ on:
         required: true
         description: 'Push to docker'
         default: true
+      new_release:
+        type: boolean
+        required: true
+        description: 'Create release'
+        default: true
 
 permissions:
   contents: write
@@ -74,7 +79,8 @@ jobs:
   
   # new release
   new_release:
-    needs: build_electron
+    if: ${{ github.event.inputs.new_release == 'true' }}
+    needs: push_docker
     runs-on: ubuntu-latest
     steps:
       # get electron artifacts
