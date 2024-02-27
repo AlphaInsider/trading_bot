@@ -101,24 +101,12 @@ jobs:
           echo "SIGNING_MACOS_NOTARY_ID=${{ secrets.SIGNING_MACOS_NOTARY_ID }}" >> $GITHUB_ENV
           echo "SIGNING_MACOS_NOTARY_ISSUER=${{ secrets.SIGNING_MACOS_NOTARY_ISSUER }}" >> $GITHUB_ENV
       
-      #TODO: debug
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true
-      
       # build electron
       - name: Build electron app
         shell: bash
         run: |
           npm install
           npm run electron-make
-      
-      #TODO: debug
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true
       
       # upload artifacts
       - name: Upload electron artifacts

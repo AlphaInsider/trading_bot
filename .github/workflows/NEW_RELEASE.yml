@@ -7,13 +7,38 @@ on:
         type: string
         required: true
         description: 'Version Number (eg: 0.0.0)'
+      merge_master:
+        type: boolean
+        required: true
+        description: 'Merge Dev to Master'
+        default: true
+      push_docker:
+        type: boolean
+        required: true
+        description: 'Push to docker'
+        default: true
 
 permissions:
   contents: write
 
 jobs:
+  # verify version format
+  verify_version_format:
+    runs-on: ubuntu-latest
+    steps:
+      # verify version format
+      - name: Verify version format
+        shell: bash
+        run: |
+          if ! [[ "${{ github.event.inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Invalid version format."
+            exit 1
+          fi
+  
   # merge master
   merge_master:
+    if: ${{ github.event.inputs.merge_master == 'true' }}
+    needs: verify_version_format
     uses: ./.github/workflows/_merge_master.yml
     with:
       version: ${{ github.event.inputs.version }}
@@ -36,19 +61,20 @@ jobs:
       SIGNING_MACOS_NOTARY_ID: ${{ secrets.SIGNING_MACOS_NOTARY_ID }}
       SIGNING_MACOS_NOTARY_ISSUER: ${{ secrets.SIGNING_MACOS_NOTARY_ISSUER }}
   
-#  # push docker
-#  push_docker:
-#    needs: build_electron
-#    uses: ./.github/workflows/_push_docker.yml
-#    with:
-#      version: ${{ github.event.inputs.version }}
-#    secrets:
-#      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-#      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+  # push docker
+  push_docker:
+    if: ${{ github.event.inputs.push_docker == 'true' }}
+    needs: build_electron
+    uses: ./.github/workflows/_push_docker.yml
+    with:
+      version: ${{ github.event.inputs.version }}
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
   
   # new release
   new_release:
-    needs: build_electron #TODO: revert
+    needs: build_electron
     runs-on: ubuntu-latest
     steps:
       # get electron artifacts
@@ -58,12 +84,6 @@ jobs:
           path: release_artifacts
           pattern: built-electron-*
           merge-multiple: true
-      
-      #TODO: debug
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true
       
       # rename artifacts for release
       - name: Rename artifacts for release
