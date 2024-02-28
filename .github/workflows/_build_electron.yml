@@ -32,6 +32,12 @@ jobs:
         with:
           node-version: 18
       
+      # setup python
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
       # get app artifacts
       - name: Get app artifacts
         uses: actions/download-artifact@v4
