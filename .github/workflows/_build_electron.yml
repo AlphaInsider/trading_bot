@@ -19,59 +19,12 @@ on:
         required: true
 
 jobs:
-#  # build windows
-#  build_windows:
-#    runs-on: windows-latest
-#    steps:
-#      # get app artifacts
-#      - name: Get app artifacts
-#        uses: actions/download-artifact@v4
-#        with:
-#          name: built-app
-#      
-#      # build electron
-#      - name: Build electron app
-#        shell: bash
-#        run: |
-#          npm install
-#          npm run electron-make
-#      
-#      #TODO: sign electron app
-#      - name: Sign electron app
-#        shell: pwsh
-#        env:
-#          SIGNING_WINDOWS_CERT_KEY: ${{ secrets.SIGNING_WINDOWS_CERT_KEY }}
-#          SIGNING_WINDOWS_CERT_PASS: ${{ secrets.SIGNING_WINDOWS_CERT_PASS }}
-#        run: |
-#          # Path to most recent signtool
-#          $signtool = Get-ChildItem "C:/Program Files (x86)/Windows Kits/10/bin/*" -Recurse -Filter signtool.exe | 
-#                      Sort-Object -Property Directory -Descending | 
-#                      Select-Object -First 1 -ExpandProperty FullName
-#          
-#          # Decode the PFX from Base64
-#          $pfxContent = [System.Convert]::FromBase64String($env:SIGNING_WINDOWS_CERT_KEY)
-#          $pfxPath = "signingCert.pfx"
-#          [System.IO.File]::WriteAllBytes($pfxPath, $pfxContent)
-#          
-#          # Find the executable path
-#          $exePath = Get-ChildItem .\out\make\ -Recurse -Filter *.exe | Select-Object -First 1 -ExpandProperty FullName
-#          
-#          # Sign the executable
-#          & $signtool sign /f $pfxPath /p $env:SIGNING_WINDOWS_CERT_PASS /tr http://timestamp.digicert.com /td sha256 /fd sha256 "$exePath"
-#          
-#          # Verify executable is signed
-#          & $signtool verify /pa /v "$exePath"
-#      
-#      # upload artifacts
-#      - name: Upload electron artifacts
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: built-electron-windows
-#          path: ./out/make
-  
-  # build macos
-  build_macos:
-    runs-on: macos-latest
+  release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest] #TODO: add windows-latest
+    
     steps:
       # get app artifacts
       - name: Get app artifacts
@@ -79,62 +32,32 @@ jobs:
         with:
           name: built-app
       
-      # setup python
-      - name: Setup python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      
-      # set macOS certificate
-      - name: Set macOS certificate
-        uses: apple-actions/import-codesign-certs@v2
-        with:
-          p12-file-base64: ${{ secrets.SIGNING_MACOS_CERT_KEY }}
-          p12-password: ${{ secrets.SIGNING_MACOS_CERT_PASS }}
-      
-      # set notary keys
-      - name: Set notary keys
-        shell: bash
+      # (macOS) set notary key details
+      - name: Set notary key details
+        if: startsWith(matrix.os, 'macos')
         run: |
           mkdir -p ~/private_keys/
-          echo "${{ secrets.SIGNING_MACOS_NOTARY_KEY }}" | base64 -d > ~/private_keys/notary_key.p8
-          echo "SIGNING_MACOS_NOTARY_ID=${{ secrets.SIGNING_MACOS_NOTARY_ID }}" >> $GITHUB_ENV
-          echo "SIGNING_MACOS_NOTARY_ISSUER=${{ secrets.SIGNING_MACOS_NOTARY_ISSUER }}" >> $GITHUB_ENV
+          echo "${{ secrets.SIGNING_MACOS_NOTARY_KEY }}" | base64 -d > ~/private_keys/AuthKey_${{ secrets.SIGNING_MACOS_NOTARY_ID }}.p8
+          echo "API_KEY_ID=${{ secrets.SIGNING_MACOS_NOTARY_ID }}" >> $GITHUB_ENV
+          echo "API_KEY_ISSUER_ID=${{ secrets.SIGNING_MACOS_NOTARY_ISSUER }}" >> $GITHUB_ENV
       
-      # build electron
-      - name: Build electron app
-        shell: bash
-        run: |
-          npm install
-          npm run electron-make
+      # build electron release
+      - name: Build electron release
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          args: '--config electron-builder.js'
+          skip_build: true
+          github_token: ${{ secrets.github_token }}
+          # Windows signing
+          windows_certs: ${{ secrets.SIGNING_WINDOWS_CERT_KEY }}
+          windows_certs_password: ${{ secrets.SIGNING_WINDOWS_CERT_PASS }}
+          # MacOS signing
+          mac_certs: ${{ secrets.SIGNING_MACOS_CERT_KEY }}
+          mac_certs_password: ${{ secrets.SIGNING_MACOS_CERT_PASS }}
       
       # upload artifacts
       - name: Upload electron artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: built-electron-macos
-          path: ./out/make
-  
-  # build linux
-  build_linux:
-    runs-on: ubuntu-latest
-    steps:
-      # get app artifacts
-      - name: Get app artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: built-app
-      
-      # build electron
-      - name: Build electron app
-        shell: bash
-        run: |
-          npm install
-          npm run electron-make
-      
-      # upload artifacts
-      - name: Upload electron artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: built-electron-linux
-          path: ./out/make
+          name: built-electron-${{ matrix.os }}
+          path: ./dist
