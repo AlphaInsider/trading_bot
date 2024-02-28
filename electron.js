@@ -3,8 +3,6 @@ const {app, BrowserWindow, Tray, Menu, shell} = require('electron');
 const {fork} = require('child_process');
 const axios = require('axios');
 
-if(require('electron-squirrel-startup')) app.quit();
-
 const host = 'http://localhost:5050';
 
 let mainWindow = undefined;
@@ -17,7 +15,7 @@ let createWindow = async () => {
   //create electron window
   mainWindow = new BrowserWindow({
     title: 'AlphaBot',
-    icon: path.resolve(__dirname, './public/electron/desktop_icon.png'),
+    icon: path.resolve(__dirname, './public/electron/icon.png'),
     width: 1200,
     height: 800,
     autoHideMenuBar: true
