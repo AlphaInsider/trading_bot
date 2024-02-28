@@ -26,6 +26,12 @@ jobs:
         os: [ubuntu-latest, macos-latest] #TODO: add windows-latest
     
     steps:
+      # setup node
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      
       # get app artifacts
       - name: Get app artifacts
         uses: actions/download-artifact@v4
