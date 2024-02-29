@@ -14,11 +14,13 @@ module.exports = {
     'express.js',
     'package.json'
   ],
+  afterSign: 'electron-builder-notarize',
   win: {
     target: ['nsis']
   },
   mac: {
-    target: ['dmg']
+    target: ['dmg'],
+    hardenedRuntime: true
   },
   linux: {
     target: ['AppImage']
