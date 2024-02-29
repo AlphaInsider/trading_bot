@@ -1,4 +1,4 @@
-name: _merge_master
+name: _update_version
 
 on:
   workflow_call:
@@ -9,7 +9,7 @@ on:
         description: 'Version Number (eg: 0.0.0)'
 
 jobs:
-  merge_master:
+  update_version:
     runs-on: ubuntu-latest
     steps:
       # verify version format
