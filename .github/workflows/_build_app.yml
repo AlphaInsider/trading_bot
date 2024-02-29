@@ -7,7 +7,7 @@ jobs:
   build_app:
     runs-on: ubuntu-latest
     steps:
-      # checkout client
+      # checkout trading_bot_client
       - name: Checkout trading_bot_client
         uses: actions/checkout@v4
         with:
@@ -15,11 +15,10 @@ jobs:
           ref: master
           path: trading_bot_client
       
-      # checkout server
+      # checkout trading_bot
       - name: Checkout trading_bot
         uses: actions/checkout@v4
         with:
-          repository: AlphaInsider/trading_bot
           ref: master
           path: trading_bot
       
