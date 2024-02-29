@@ -23,7 +23,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest] #TODO: add windows-latest
+        os: [windows-latest, macos-latest, ubuntu-latest]
     
     steps:
       # setup python
@@ -61,10 +61,16 @@ jobs:
           mac_certs: ${{ secrets.SIGNING_MACOS_CERT_KEY }}
           mac_certs_password: ${{ secrets.SIGNING_MACOS_CERT_PASS }}
       
+      # Rename Windows executable
+      - name: Rename Windows executable
+        if: startsWith(matrix.os, 'windows')
+        shell: bash
+        run: |
+          mv ./dist/"AlphaBot Setup "*.exe ./dist/AlphaBot-*.exe
+      
       # upload artifacts
       - name: Upload electron artifacts
         uses: actions/upload-artifact@v4
         with:
           name: built-electron-${{ matrix.os }}
-          #TODO: path: ./dist/AlphaBot-*.{exe,dmg,AppImage}
-          path: ./dist
+          path: ./dist/*.{exe,dmg,AppImage}
