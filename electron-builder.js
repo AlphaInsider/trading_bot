@@ -4,10 +4,11 @@ module.exports = {
   asar: false,
   directories: {
     output: 'dist',
-    buildResources: 'public/electron',
+    buildResources: 'electron_assets',
   },
   files: [
     'database/**/*',
+    'electron_assets/**/*',
     'lib/**/*',
     'public/**/*',
     'electron.js',
@@ -21,7 +22,8 @@ module.exports = {
   mac: {
     target: ['dmg'],
     hardenedRuntime: true,
-    entitlements: './public/electron/entitlements.mac.plist'
+    entitlements: './electron_assets/entitlements.mac.plist',
+    entitlementsInherit: './electron_assets/entitlements.mac.plist'
   },
   linux: {
     target: ['AppImage']
