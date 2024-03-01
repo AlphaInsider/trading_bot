@@ -42,7 +42,7 @@ jobs:
   
   # build app
   build_app:
-    needs: new_release
+    needs: create_new_release
     uses: ./.github/workflows/_build_app.yml
   
   # build electron
