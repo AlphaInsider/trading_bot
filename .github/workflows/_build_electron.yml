@@ -65,6 +65,7 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: bash
         run: |
+          cd ./dist
           for file in AlphaBot\ *.exe; do
             newName="${file/ Setup /-}";
             mv "$file" "$newName";
