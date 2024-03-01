@@ -46,7 +46,7 @@ jobs:
       SIGNING_MACOS_NOTARY_ID: ${{ secrets.SIGNING_MACOS_NOTARY_ID }}
       SIGNING_MACOS_NOTARY_ISSUER: ${{ secrets.SIGNING_MACOS_NOTARY_ISSUER }}
   
-  #TODO: push docker
+  # push docker
   push_docker:
     if: ${{ github.event.inputs.push_docker == 'true' }}
     needs: build_electron
@@ -57,7 +57,7 @@ jobs:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
   
-  #TODO: new release
+  # new release
   new_release:
     if: ${{ github.event.inputs.new_release == 'true' }}
     needs: push_docker
@@ -71,17 +71,6 @@ jobs:
           pattern: built-electron-*
           merge-multiple: true
       
-      # rename artifacts for release
-      - name: Rename artifacts for release
-        shell: bash
-        run: |
-          mkdir -p ./release
-          find ./release_artifacts -type f -regex ".*\.\(exe\|dmg\|deb\)$" | while read FILE; do
-            NEW_NAME="AlphaBot-${{ github.event.inputs.version }}.${FILE##*.}"
-            NEW_PATH="./release/${NEW_NAME}"
-            mv "${FILE}" "${NEW_PATH}"
-          done
-      
       # create release
       - name: Create release
         uses: softprops/action-gh-release@v1
@@ -93,4 +82,4 @@ jobs:
           name: Release v${{ github.event.inputs.version }}
           generate_release_notes: true
           draft: true
-          files: ./release/*
+          files: ./release_artifacts/*

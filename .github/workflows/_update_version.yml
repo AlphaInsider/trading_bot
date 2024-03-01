@@ -21,8 +21,8 @@ jobs:
             exit 1
           fi
       
-      # checkout trading_bot
-      - name: Checkout trading_bot
+      # checkout master
+      - name: Checkout master
         uses: actions/checkout@v4
         with:
           ref: master
