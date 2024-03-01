@@ -60,17 +60,6 @@ jobs:
           mac_certs: ${{ secrets.SIGNING_MACOS_CERT_KEY }}
           mac_certs_password: ${{ secrets.SIGNING_MACOS_CERT_PASS }}
       
-      # Rename Windows executable
-      - name: Rename Windows executable
-        if: startsWith(matrix.os, 'windows')
-        shell: bash
-        run: |
-          cd ./dist
-          for file in AlphaBot\ *.exe; do
-            newName="${file/ Setup /-}";
-            mv "$file" "$newName";
-          done
-      
       # upload artifacts
       - name: Upload electron artifacts
         uses: actions/upload-artifact@v4
