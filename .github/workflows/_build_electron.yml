@@ -76,4 +76,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: built-electron-${{ matrix.os }}
-          path: ./dist/*.{exe,dmg,AppImage}
+          path: |
+            ./dist/*.exe
+            ./dist/*.dmg
+            ./dist/*.AppImage
