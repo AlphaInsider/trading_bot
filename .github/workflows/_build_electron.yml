@@ -65,7 +65,10 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: bash
         run: |
-          rename 's/AlphaBot Setup (.+?)\.exe/AlphaBot-$1.exe/' *.exe
+          for file in AlphaBot\ *.exe; do
+            newName="${file/ Setup /-}";
+            mv "$file" "$newName";
+          done
       
       # upload artifacts
       - name: Upload electron artifacts
