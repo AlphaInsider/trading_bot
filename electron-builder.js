@@ -22,7 +22,8 @@ module.exports = {
   mac: {
     target: ['dmg'],
     hardenedRuntime: true,
-    entitlements: './electron_assets/entitlements.mac.plist'
+    entitlements: './electron_assets/entitlements.mac.plist',
+    entitlementsInherit: './electron_assets/entitlements.mac.plist'
   },
   linux: {
     target: ['AppImage']
