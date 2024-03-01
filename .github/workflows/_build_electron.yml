@@ -51,8 +51,7 @@ jobs:
       - name: Build electron release
         uses: samuelmeuli/action-electron-builder@v1
         with:
-          args: '--config electron-builder.js'
-          skip_build: true
+          args: '--publish never --config electron-builder.js'
           github_token: ${{ secrets.github_token }}
           # Windows signing
           #TODO: windows_certs: ${{ secrets.SIGNING_WINDOWS_CERT_KEY }}
@@ -66,7 +65,7 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: bash
         run: |
-          mv ./dist/"AlphaBot Setup "*.exe ./dist/AlphaBot-*.exe
+          rename 's/AlphaBot Setup (.+?)\.exe/AlphaBot-$1.exe/' *.exe
       
       # upload artifacts
       - name: Upload electron artifacts
