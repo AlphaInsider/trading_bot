@@ -39,7 +39,7 @@ jobs:
           name: built-app
       
       # (macOS) set notary key details
-      - name: Set notary key details
+      - name: (macOS) Set notary key details
         if: startsWith(matrix.os, 'macos')
         run: |
           mkdir -p ~/private_keys/
@@ -59,13 +59,3 @@ jobs:
           # MacOS signing
           mac_certs: ${{ secrets.SIGNING_MACOS_CERT_KEY }}
           mac_certs_password: ${{ secrets.SIGNING_MACOS_CERT_PASS }}
-      
-#      # upload artifacts
-#      - name: Upload electron artifacts
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: built-electron-${{ matrix.os }}
-#          path: |
-#            ./dist/*.exe
-#            ./dist/*.dmg
-#            ./dist/*.AppImage

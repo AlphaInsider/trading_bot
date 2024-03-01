@@ -12,11 +12,6 @@ on:
         required: true
         description: 'Push to docker'
         default: true
-      new_release:
-        type: boolean
-        required: true
-        description: 'Create release'
-        default: true
 
 permissions:
   contents: write
@@ -28,14 +23,13 @@ jobs:
     with:
       version: ${{ github.event.inputs.version }}
   
-  # new release
-  new_release:
-    if: ${{ github.event.inputs.new_release == 'true' }}
+  # draft new release
+  draft_new_release:
     needs: update_version
     runs-on: ubuntu-latest
     steps:
-      # create release
-      - name: Create release
+      # draft new release
+      - name: Draft new release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -48,7 +42,7 @@ jobs:
   
   # build app
   build_app:
-    needs: update_version
+    needs: draft_new_release
     uses: ./.github/workflows/_build_app.yml
   
   # build electron
@@ -74,30 +68,3 @@ jobs:
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-  
-#  # new release
-#  new_release:
-#    if: ${{ github.event.inputs.new_release == 'true' }}
-#    needs: push_docker
-#    runs-on: ubuntu-latest
-#    steps:
-#      # get electron artifacts
-#      - name: Get electron artifacts
-#        uses: actions/download-artifact@v4
-#        with:
-#          path: release_artifacts
-#          pattern: built-electron-*
-#          merge-multiple: true
-#      
-#      # create release
-#      - name: Create release
-#        uses: softprops/action-gh-release@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          target_commitish: master
-#          tag_name: v${{ github.event.inputs.version }}
-#          name: Release v${{ github.event.inputs.version }}
-#          generate_release_notes: true
-#          draft: true
-#          files: ./release_artifacts/*
