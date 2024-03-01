@@ -47,8 +47,8 @@ jobs:
           echo "API_KEY_ID=${{ secrets.SIGNING_MACOS_NOTARY_ID }}" >> $GITHUB_ENV
           echo "API_KEY_ISSUER_ID=${{ secrets.SIGNING_MACOS_NOTARY_ISSUER }}" >> $GITHUB_ENV
       
-      # build electron release
-      - name: Build electron release
+      # build electron and attach artifacts to release
+      - name: Build electron and attach artifacts to release
         uses: samuelmeuli/action-electron-builder@v1
         with:
           github_token: ${{ secrets.github_token }}
