@@ -3,10 +3,6 @@
 <plist version="1.0">
   <dict>
     <!-- Allow electron execution -->
-    <key>com.apple.security.application-groups</key>
-    <array>
-      <string>7WMUCJHPUL.com.alphainsider.alphabot</string>
-    </array>
     <key>com.apple.security.cs.allow-jit</key>
     <true/>
     <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
@@ -15,9 +11,6 @@
     <true/>
     <!-- Allow outgoing network connections -->
     <key>com.apple.security.network.client</key>
-    <true/>
-    <!-- Sandbox the app -->
-    <key>com.apple.security.app-sandbox</key>
     <true/>
   </dict>
 </plist>
