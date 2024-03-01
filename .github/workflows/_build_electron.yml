@@ -51,7 +51,7 @@ jobs:
       - name: Build electron release
         uses: samuelmeuli/action-electron-builder@v1
         with:
-          args: '--publish never --config electron-builder.js'
+          args: '--config electron-builder.js'
           github_token: ${{ secrets.github_token }}
           # Windows signing
           #TODO: windows_certs: ${{ secrets.SIGNING_WINDOWS_CERT_KEY }}
@@ -60,12 +60,12 @@ jobs:
           mac_certs: ${{ secrets.SIGNING_MACOS_CERT_KEY }}
           mac_certs_password: ${{ secrets.SIGNING_MACOS_CERT_PASS }}
       
-      # upload artifacts
-      - name: Upload electron artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: built-electron-${{ matrix.os }}
-          path: |
-            ./dist/*.exe
-            ./dist/*.dmg
-            ./dist/*.AppImage
+#      # upload artifacts
+#      - name: Upload electron artifacts
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: built-electron-${{ matrix.os }}
+#          path: |
+#            ./dist/*.exe
+#            ./dist/*.dmg
+#            ./dist/*.AppImage
