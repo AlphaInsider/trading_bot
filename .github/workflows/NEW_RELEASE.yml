@@ -23,13 +23,13 @@ jobs:
     with:
       version: ${{ github.event.inputs.version }}
   
-  # draft new release
-  draft_new_release:
+  # new release
+  new_release:
     needs: update_version
     runs-on: ubuntu-latest
     steps:
-      # draft new release
-      - name: Draft new release
+      # create release
+      - name: Create release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -42,7 +42,7 @@ jobs:
   
   # build app
   build_app:
-    needs: draft_new_release
+    needs: new_release
     uses: ./.github/workflows/_build_app.yml
   
   # build electron
