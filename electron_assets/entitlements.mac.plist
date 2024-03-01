@@ -3,6 +3,10 @@
 <plist version="1.0">
   <dict>
     <!-- Allow electron execution -->
+    <key>com.apple.security.application-groups</key>
+    <array>
+      <string>7WMUCJHPUL.com.alphainsider.alphabot</string>
+    </array>
     <key>com.apple.security.cs.allow-jit</key>
     <true/>
     <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
