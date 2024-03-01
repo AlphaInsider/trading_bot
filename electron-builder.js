@@ -2,6 +2,7 @@ module.exports = {
   productName: 'AlphaBot',
   appId: 'com.alphainsider.alphabot',
   asar: false,
+  artifactName: '${productName}-${version}.${ext}',
   directories: {
     output: 'dist',
     buildResources: 'electron_assets',
