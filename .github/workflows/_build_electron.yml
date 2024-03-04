@@ -23,9 +23,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-latest, ubuntu-18.04] #TODO: check ubuntu version
     
     steps:
+      #TODO: setup node
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 12
+      
       # setup python
       - name: Setup python
         uses: actions/setup-python@v5
