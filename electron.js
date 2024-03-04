@@ -2,6 +2,7 @@ const path = require('path');
 const {app, BrowserWindow, Tray, Menu, shell} = require('electron');
 const {fork} = require('child_process');
 const axios = require('axios');
+const {autoUpdater} = require('electron-updater');
 
 const host = 'http://localhost:5050';
 
@@ -21,9 +22,14 @@ let createWindow = async () => {
     autoHideMenuBar: true
   });
   
-  //open external links in user's default browser
+  //handle update events and external links
   mainWindow.webContents.on('will-navigate', (event) => {
-    if(new URL(host).host !== new URL(event.url).host) {
+    //handle update
+    if(event.url === 'process:update') {
+      autoUpdater.downloadUpdate().catch(() => {});
+    }
+    //handle external links
+    else if(new URL(host).host !== new URL(event.url).host) {
       event.preventDefault();
       shell.openExternal(event.url);
     }
@@ -93,6 +99,13 @@ app.on('second-instance', async () => {
 
 //start app
 app.on('ready', () => Promise.resolve().then(async () => {
+  //check for updates
+  autoUpdater.autoDownload = false;
+  autoUpdater.checkForUpdatesAndNotify();
+  autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
+    autoUpdater.quitAndInstall();
+  });
+  
   //start express server
   expressAppProcess = fork(path.resolve(__dirname, './express.js'), [
     '--electron',
