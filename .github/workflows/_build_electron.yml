@@ -23,7 +23,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-18.04] #TODO: check ubuntu version
+        os: [windows-latest, macos-latest, ubuntu-latest]
     
     steps:
       #TODO: setup node
