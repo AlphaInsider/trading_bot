@@ -2,8 +2,7 @@ const path = require('path');
 const {app, BrowserWindow, Tray, Menu, shell} = require('electron');
 const {fork} = require('child_process');
 const axios = require('axios');
-
-if(require('electron-squirrel-startup')) app.quit();
+const {autoUpdater} = require('electron-updater');
 
 const host = 'http://localhost:5050';
 
@@ -17,15 +16,20 @@ let createWindow = async () => {
   //create electron window
   mainWindow = new BrowserWindow({
     title: 'AlphaBot',
-    icon: path.resolve(__dirname, './public/electron/desktop_icon.png'),
+    icon: path.resolve(__dirname, './electron_assets/icon.png'),
     width: 1200,
     height: 800,
     autoHideMenuBar: true
   });
   
-  //open external links in user's default browser
+  //handle update events and external links
   mainWindow.webContents.on('will-navigate', (event) => {
-    if(new URL(host).host !== new URL(event.url).host) {
+    //handle update
+    if(event.url === 'process:update') {
+      autoUpdater.downloadUpdate().catch(() => {});
+    }
+    //handle external links
+    else if(new URL(host).host !== new URL(event.url).host) {
       event.preventDefault();
       shell.openExternal(event.url);
     }
@@ -50,7 +54,7 @@ let createWindow = async () => {
 //DONE: createTray
 let createTray = async () => {
   //create tray
-  tray = new Tray(path.resolve(__dirname, './public/electron/tray_icon.png'));
+  tray = new Tray(path.resolve(__dirname, './electron_assets/tray_icon.png'));
   
   //right click menu
   tray.setContextMenu(Menu.buildFromTemplate([
@@ -95,6 +99,13 @@ app.on('second-instance', async () => {
 
 //start app
 app.on('ready', () => Promise.resolve().then(async () => {
+  //check for updates
+  autoUpdater.autoDownload = false;
+  autoUpdater.checkForUpdatesAndNotify();
+  autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
+    autoUpdater.quitAndInstall();
+  });
+  
   //start express server
   expressAppProcess = fork(path.resolve(__dirname, './express.js'), [
     '--electron',
