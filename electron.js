@@ -11,8 +11,23 @@ let tray = undefined;
 let expressAppProcess = undefined;
 let isQuitting = false;
 
-//DONE: createWindow
-let createWindow = async () => {
+//DONE: createSplashScreen
+let createSplashScreen = async () => {
+  //create electron window
+  mainWindow = new BrowserWindow({
+    title: 'AlphaBot',
+    icon: path.resolve(__dirname, './electron_assets/icon.png'),
+    width: 500,
+    height: 500,
+    frame: false
+  });
+  
+  //create splash screen
+  mainWindow.loadFile(path.resolve(__dirname, './public/splashScreen.html'));
+}
+
+//DONE: createAppWindow
+let createAppWindow = async () => {
   //create electron window
   mainWindow = new BrowserWindow({
     title: 'AlphaBot',
@@ -47,7 +62,7 @@ let createWindow = async () => {
     }
   });
   
-  //load local express app
+  //create app window
   mainWindow.loadURL(host);
 }
 
@@ -109,6 +124,9 @@ app.on('ready', () => Promise.resolve().then(async () => {
   });
   autoUpdater.checkForUpdates();
   
+  //create splash screen
+  await createSplashScreen();
+  
   //start express server
   expressAppProcess = fork(path.resolve(__dirname, './express.js'), [
     '--electron',
@@ -129,13 +147,16 @@ app.on('ready', () => Promise.resolve().then(async () => {
       return waitForServer(attempt-1);
     });
   }
-  await waitForServer(20).catch((error) => {
+  await waitForServer(120).catch((error) => {
     app.quit();
     throw error;
   });
   
-  //create window
-  await createWindow();
+  //close splash screen
+  mainWindow.close();
+  
+  //create app window
+  createAppWindow();
   
   //create tray
   await createTray();
