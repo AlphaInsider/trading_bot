@@ -101,10 +101,13 @@ app.on('second-instance', async () => {
 app.on('ready', () => Promise.resolve().then(async () => {
   //check for updates
   autoUpdater.autoDownload = false;
-  autoUpdater.checkForUpdatesAndNotify();
   autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
     autoUpdater.quitAndInstall();
   });
+  autoUpdater.on('error', (error) => {
+    console.log(error);
+  });
+  autoUpdater.checkForUpdates();
   
   //start express server
   expressAppProcess = fork(path.resolve(__dirname, './express.js'), [
