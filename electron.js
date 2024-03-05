@@ -6,15 +6,16 @@ const {autoUpdater} = require('electron-updater');
 
 const host = 'http://localhost:5050';
 
+let splashWindow = undefined;
 let mainWindow = undefined;
 let tray = undefined;
 let expressAppProcess = undefined;
 let isQuitting = false;
 
-//DONE: createSplashScreen
-let createSplashScreen = async () => {
+//DONE: createSplashWindow
+let createSplashWindow = async () => {
   //create electron window
-  mainWindow = new BrowserWindow({
+  splashWindow = new BrowserWindow({
     title: 'AlphaBot',
     icon: path.resolve(__dirname, './electron_assets/icon.png'),
     width: 500,
@@ -22,8 +23,8 @@ let createSplashScreen = async () => {
     frame: false
   });
   
-  //create splash screen
-  mainWindow.loadFile(path.resolve(__dirname, './public/splashScreen.html'));
+  //load splash screen
+  splashWindow.loadFile(path.resolve(__dirname, './public/splash.html'));
 }
 
 //DONE: createAppWindow
@@ -62,7 +63,7 @@ let createAppWindow = async () => {
     }
   });
   
-  //create app window
+  //load app page
   mainWindow.loadURL(host);
 }
 
@@ -124,8 +125,8 @@ app.on('ready', () => Promise.resolve().then(async () => {
   });
   autoUpdater.checkForUpdates();
   
-  //create splash screen
-  await createSplashScreen();
+  //create splash window
+  await createSplashWindow();
   
   //start express server
   expressAppProcess = fork(path.resolve(__dirname, './express.js'), [
@@ -153,7 +154,7 @@ app.on('ready', () => Promise.resolve().then(async () => {
   });
   
   //close splash screen
-  mainWindow.close();
+  splashWindow.close();
   
   //create app window
   createAppWindow();
