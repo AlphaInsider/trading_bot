@@ -18,8 +18,8 @@ let createSplashWindow = async () => {
   splashWindow = new BrowserWindow({
     title: 'AlphaBot',
     icon: path.resolve(__dirname, './electron_assets/icon.png'),
-    width: 500,
-    height: 500,
+    width: 600,
+    height: 400,
     frame: false
   });
   
