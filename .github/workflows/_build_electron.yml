@@ -47,13 +47,6 @@ jobs:
           echo "API_KEY_ID=${{ secrets.SIGNING_MACOS_NOTARY_ID }}" >> $GITHUB_ENV
           echo "API_KEY_ISSUER_ID=${{ secrets.SIGNING_MACOS_NOTARY_ISSUER }}" >> $GITHUB_ENV
       
-      #TODO: debug
-      - name: Setup tmate session
-        if: startsWith(matrix.os, 'macos')
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true
-      
       # build electron and attach artifacts to release
       - name: Build electron and attach artifacts to release
         uses: samuelmeuli/action-electron-builder@v1
