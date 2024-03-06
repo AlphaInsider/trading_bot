@@ -39,10 +39,11 @@ let createAppWindow = async () => {
   });
   
   //handle update events and external links
-  mainWindow.webContents.on('will-navigate', (event) => {
+  mainWindow.webContents.on('will-navigate', async (event) => {
     //handle update
     if(event.url === 'process:update') {
-      autoUpdater.downloadUpdate().catch(() => {});
+      await autoUpdater.checkForUpdates().catch(() => {});
+      await autoUpdater.downloadUpdate().catch(() => {});
     }
     //handle external links
     else if(new URL(host).host !== new URL(event.url).host) {
@@ -123,7 +124,6 @@ app.on('ready', () => Promise.resolve().then(async () => {
   autoUpdater.on('error', (error) => {
     console.log(error);
   });
-  autoUpdater.checkForUpdates();
   
   //create splash window
   await createSplashWindow();
