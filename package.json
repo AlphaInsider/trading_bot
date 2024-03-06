@@ -45,7 +45,7 @@
     "productName": "AlphaBot",
     "appId": "com.alphainsider.alphabot",
     "asar": false,
-    "artifactName": "${productName}-${version}.${ext}",
+    "artifactName": "${productName}.${ext}",
     "directories": {
       "output": "dist",
       "buildResources": "electron_assets"
