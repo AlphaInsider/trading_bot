@@ -121,9 +121,7 @@ app.on('ready', () => Promise.resolve().then(async () => {
   autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
     autoUpdater.quitAndInstall();
   });
-  autoUpdater.on('error', (error) => {
-    console.log(error);
-  });
+  autoUpdater.on('error', (error) => {});
   
   //create splash window
   await createSplashWindow();

@@ -127,7 +127,7 @@ router.post('/login',
   }
 );
 
-//CHECK: getVersion
+//DONE: getVersion
 router.get('/getVersion',
   (req, res, next) => {
     server.getVersion({
@@ -148,7 +148,7 @@ router.get('/getVersion',
   }
 );
 
-//CHECK: *getBotInfo
+//DONE: *getBotInfo
 router.get('/getBotInfo',
   auth(),
   (req, res, next) => {
@@ -170,7 +170,7 @@ router.get('/getBotInfo',
   }
 );
 
-//CHECK: *getAllocation
+//DONE: *getAllocation
 router.get('/getAllocation',
   auth(),
   (req, res, next) => {
@@ -192,7 +192,7 @@ router.get('/getAllocation',
   }
 );
 
-//CHECK: *updateAllocation <strategy_id>
+//DONE: *updateAllocation <strategy_id>
 router.post('/updateAllocation',
   auth(),
   (req, res, next) => {
@@ -214,7 +214,7 @@ router.post('/updateAllocation',
   }
 );
 
-//CHECK: *updateSettings --rebalance_on_start-- --close_on_stop--
+//DONE: *updateSettings --rebalance_on_start-- --close_on_stop--
 router.post('/updateSettings',
   auth(),
   (req, res, next) => {
@@ -236,7 +236,7 @@ router.post('/updateSettings',
   }
 );
 
-//CHECK: *updateAlphaInsider <alphainsider_key>
+//DONE: *updateAlphaInsider <alphainsider_key>
 router.post('/updateAlphaInsider',
   auth(),
   (req, res, next) => {
@@ -258,7 +258,7 @@ router.post('/updateAlphaInsider',
   }
 );
 
-//CHECK: *updateBrokerAlpaca <alpaca_key> <alpaca_secret>
+//DONE: *updateBrokerAlpaca <alpaca_key> <alpaca_secret>
 router.post('/updateBrokerAlpaca',
   auth(),
   (req, res, next) => {
@@ -280,7 +280,7 @@ router.post('/updateBrokerAlpaca',
   }
 );
 
-//CHECK: *updateBrokerTastytrade <tastytrade_email> <tastytrade_password> <account_id>
+//DONE: *updateBrokerTastytrade <tastytrade_email> <tastytrade_password> <account_id>
 router.post('/updateBrokerTastytrade',
   auth(),
   (req, res, next) => {
@@ -302,7 +302,29 @@ router.post('/updateBrokerTastytrade',
   }
 );
 
-//CHECK: *startBot
+//DONE: *updateBrokerBinance <binance_key> <binance_secret>
+router.post('/updateBrokerBinance',
+  auth(),
+  (req, res, next) => {
+    server.updateBrokerBinance({
+      ...req.body
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
+//DONE: *startBot
 router.post('/startBot',
   auth(),
   (req, res, next) => {
@@ -324,7 +346,7 @@ router.post('/startBot',
   }
 );
 
-//CHECK: *stopBot
+//DONE: *stopBot
 router.post('/stopBot',
   auth(),
   (req, res, next) => {
@@ -346,7 +368,7 @@ router.post('/stopBot',
   }
 );
 
-//CHECK: *getStrategies <[strategy_id]> --timeframe--
+//DONE: *getStrategies <[strategy_id]> --timeframe--
 router.get('/getStrategies',
   auth(),
   (req, res, next) => {
@@ -368,7 +390,7 @@ router.get('/getStrategies',
   }
 );
 
-//CHECK: *searchStrategies --search-- --{positions}-- --{industries}-- --{type}-- --[risk]-- --trade_count_min-- --trade_count_max-- --price_min-- --price_max-- --timeframe-- --sort-- --limit-- --offset_id--
+//DONE: *searchStrategies --search-- --{positions}-- --{industries}-- --{type}-- --[risk]-- --trade_count_min-- --trade_count_max-- --price_min-- --price_max-- --timeframe-- --sort-- --limit-- --offset_id--
 router.post('/searchStrategies',
   auth(),
   (req, res, next) => {
@@ -390,7 +412,7 @@ router.post('/searchStrategies',
   }
 );
 
-//CHECK: *getActivity --activity_id-- --[type]-- --limit-- --offset_id--
+//DONE: *getActivity --activity_id-- --[type]-- --limit-- --offset_id--
 router.get('/getActivity',
   auth(),
   (req, res, next) => {
