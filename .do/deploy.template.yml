@@ -1,6 +1,6 @@
 spec:
   name: trading-bot
-  region: syd
+  region: syd1
   services:
     - name: web
       instance_count: 1
