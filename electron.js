@@ -7,6 +7,7 @@ const {autoUpdater} = require('electron-updater');
 const host = 'http://localhost:5050';
 
 let splashWindow = undefined;
+let updateWindow = undefined;
 let mainWindow = undefined;
 let tray = undefined;
 let expressAppProcess = undefined;
@@ -27,6 +28,30 @@ let createSplashWindow = async () => {
   splashWindow.loadFile(path.resolve(__dirname, './public/splash.html'));
 }
 
+//DONE: createUpdateWindow
+let createUpdateWindow = async () => {
+  //hide app window
+  if(mainWindow.isVisible()) {
+    mainWindow.hide();
+  }
+  
+  //create electron window
+  updateWindow = new BrowserWindow({
+    title: 'AlphaBot',
+    icon: path.resolve(__dirname, './electron_assets/icon.png'),
+    width: 600,
+    height: 400,
+    frame: false
+  });
+  
+  //load update screen
+  updateWindow.loadFile(path.resolve(__dirname, './public/update.html'));
+  
+  //check for updates and download
+  await autoUpdater.checkForUpdates().catch(() => {});
+  await autoUpdater.downloadUpdate().catch(() => {});
+}
+
 //DONE: createAppWindow
 let createAppWindow = async () => {
   //create electron window
@@ -42,8 +67,7 @@ let createAppWindow = async () => {
   mainWindow.webContents.on('will-navigate', async (event) => {
     //handle update
     if(event.url === 'process:update') {
-      await autoUpdater.checkForUpdates().catch(() => {});
-      await autoUpdater.downloadUpdate().catch(() => {});
+      await createUpdateWindow();
     }
     //handle external links
     else if(new URL(host).host !== new URL(event.url).host) {
