@@ -302,6 +302,28 @@ router.post('/updateBrokerTastytrade',
   }
 );
 
+//CHECK: *updateBrokerBitfinex <bitfinex_key> <bitfinex_secret>
+router.post('/updateBrokerBitfinex',
+  auth(),
+  (req, res, next) => {
+    server.updateBrokerBitfinex({
+      ...req.body
+    })
+    .then((data) => {
+      res.json({
+        success: true,
+        response: data
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        response: 'Request failed.'
+      });
+    });
+  }
+);
+
 //DONE: *updateBrokerBinance <binance_key> <binance_secret>
 router.post('/updateBrokerBinance',
   auth(),
