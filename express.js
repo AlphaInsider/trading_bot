@@ -258,77 +258,11 @@ router.post('/updateAlphaInsider',
   }
 );
 
-//DONE: *updateBrokerAlpaca <alpaca_key> <alpaca_secret>
-router.post('/updateBrokerAlpaca',
+//CHECK: *updateBroker <type> <live> <{keys}>
+router.post('/updateBroker',
   auth(),
   (req, res, next) => {
-    server.updateBrokerAlpaca({
-      ...req.body
-    })
-    .then((data) => {
-      res.json({
-        success: true,
-        response: data
-      });
-    })
-    .catch((error) => {
-      res.status(400).json({
-        success: false,
-        response: 'Request failed.'
-      });
-    });
-  }
-);
-
-//DONE: *updateBrokerTastytrade <tastytrade_email> <tastytrade_password> <account_id>
-router.post('/updateBrokerTastytrade',
-  auth(),
-  (req, res, next) => {
-    server.updateBrokerTastytrade({
-      ...req.body
-    })
-    .then((data) => {
-      res.json({
-        success: true,
-        response: data
-      });
-    })
-    .catch((error) => {
-      res.status(400).json({
-        success: false,
-        response: 'Request failed.'
-      });
-    });
-  }
-);
-
-//CHECK: *updateBrokerBitfinex <bitfinex_key> <bitfinex_secret>
-router.post('/updateBrokerBitfinex',
-  auth(),
-  (req, res, next) => {
-    server.updateBrokerBitfinex({
-      ...req.body
-    })
-    .then((data) => {
-      res.json({
-        success: true,
-        response: data
-      });
-    })
-    .catch((error) => {
-      res.status(400).json({
-        success: false,
-        response: 'Request failed.'
-      });
-    });
-  }
-);
-
-//DONE: *updateBrokerBinance <binance_key> <binance_secret>
-router.post('/updateBrokerBinance',
-  auth(),
-  (req, res, next) => {
-    server.updateBrokerBinance({
+    server.updateBroker({
       ...req.body
     })
     .then((data) => {
