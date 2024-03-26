@@ -258,7 +258,7 @@ router.post('/updateAlphaInsider',
   }
 );
 
-//CHECK: *updateBroker <type> <live> <{keys}>
+//DONE: *updateBroker <type> <live> <{keys}>
 router.post('/updateBroker',
   auth(),
   (req, res, next) => {
