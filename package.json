@@ -2,7 +2,7 @@
   "name": "alpha_bot",
   "author": "AlphaInsider",
   "description": "Auto trade any AlphaInsider strategy with your broker.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": true,
   "main": "electron.js",
   "scripts": {
